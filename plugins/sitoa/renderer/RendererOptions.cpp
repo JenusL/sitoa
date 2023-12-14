@@ -1414,7 +1414,8 @@ SITOA_CALLBACK CommonRenderOptions_PPGEvent(const CRef& in_ctxt)
          SamplingTabLogic(cpset);
 
       else if (paramName == L"autodetect_threads" ||
-               paramName == L"render_device")
+               paramName == L"render_device" ||
+               paramName == L"enable_manual_devices")
          SystemTabLogic(cpset);
 
       else if (paramName == L"overscan" || 
@@ -1545,6 +1546,10 @@ void SystemTabLogic(CustomProperty &in_cp)
    ParAcc_GetParameter(in_cp, L"GI_sss_samples").PutCapabilityFlag(siReadOnly, useGPU);
    ParAcc_GetParameter(in_cp, L"GI_volume_samples").PutCapabilityFlag(siReadOnly, useGPU);
    ParAcc_GetParameter(in_cp, L"enable_progressive_render").PutCapabilityFlag(siReadOnly, useGPU);
+
+   // manual device selection
+   bool manual_device = (bool)ParAcc_GetValue(in_cp, L"enable_manual_devices", DBL_MAX);
+   ParAcc_GetParameter(in_cp, L"manual_device_selection").PutCapabilityFlag(siReadOnly, !manual_device);
 }
 
 
