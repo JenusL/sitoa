@@ -769,6 +769,9 @@ SITOA_CALLBACK CommonRenderOptions_DefineLayout(CRef& in_ctxt)
       item.PutAttribute(siUINoLabel, true);
    layout.EndGroup();
 
+   item = layout.AddItem(L"dither", L"Dither LDR Images");
+   item.PutAttribute(siUILabelPercentage, 110);
+
    layout.AddGroup(L"PNG", true, 0);
       layout.AddItem(L"output_png_skip_alpha", L"Skip Alpha");
       layout.AddItem(L"output_png_unpremult_alpha", L"Unpremultiplied Alpha");
@@ -888,9 +891,6 @@ SITOA_CALLBACK CommonRenderOptions_DefineLayout(CRef& in_ctxt)
       layout.EndGroup();
 
    layout.EndGroup();         
-
-   item = layout.AddItem(L"dither", L"Dither LDR Images");
-   item.PutAttribute(siUILabelPercentage, 110);
 
    layout.AddTab(L"Sampling");
    layout.AddGroup(L"Samples");
