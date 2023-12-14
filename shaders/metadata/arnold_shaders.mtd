@@ -2248,6 +2248,381 @@ soft.category STRING "Math"
 desc STRING "The input vector to be  normalized."
 
 ##############################################################################
+[node openpbr_surface]
+soft.category STRING "Surface"
+soft.order STRING "BeginGroup Base base_weight base_color base_roughness base_metalness EndGroup "
+"BeginGroup Specular specular_weight specular_color specular_roughness specular_ior specular_ior_level specular_anisotropy specular_rotation EndGroup "
+"BeginGroup Transmission transmission_weight transmission_color transmission_depth transmission_scatter transmission_scatter_anisotropy transmission_dispersion_abbe_number transmission_dispersion_scale transmission_transmit_aovs dielectric_priority EndGroup "
+"BeginGroup Subsurface subsurface_weight subsurface_color subsurface_radius subsurface_radius_scale subsurface_anisotropy EndGroup "
+"BeginGroup Coat coat_weight coat_color coat_roughness coat_ior coat_ior_level coat_anisotropy coat_rotation EndGroup "
+"BeginGroup Fuzz fuzz_weight fuzz_color fuzz_roughness EndGroup "
+"BeginGroup Thin_Film thin_film_thickness thin_film_ior EndGroup "
+"BeginGroup Emission emission_luminance emission_color EndGroup "
+"BeginGroup Geometry geometry_opacity geometry_thin_walled EndGroup "
+"BeginGroup Advanced caustics internal_reflections exit_to_background indirect_diffuse indirect_specular EndGroup "
+"AddTab ID_AOVs "
+"BeginGroup ID_1_AOV aov_id1 id1 EndGroup "
+"BeginGroup ID_2_AOV aov_id2 id2 EndGroup "
+"BeginGroup ID_3_AOV aov_id3 id3 EndGroup "
+"BeginGroup ID_4_AOV aov_id4 id4 EndGroup "
+"BeginGroup ID_5_AOV aov_id5 id5 EndGroup "
+"BeginGroup ID_6_AOV aov_id6 id6 EndGroup "
+"BeginGroup ID_7_AOV aov_id7 id7 EndGroup "
+"BeginGroup ID_8_AOV aov_id8 id8 EndGroup"
+
+[attr base_weight]
+desc STRING "Multiplier on the intensity of the reflection from the diffuse and metallic base."
+soft.label STRING "Weight"
+min FLOAT 0
+max FLOAT 1
+
+[attr base_color]
+desc STRING "The base diffuse color."
+soft.label STRING "Color"
+soft.viewport_guid STRING "{3515CC72-082C-11D0-91DE-00A024C78EE3}"
+
+[attr base_roughness]
+desc STRING "An Oren-Nayar type diffuse shading model. This attribute takes surface roughness into account. "
+"A value of 0.0 for the diffuse roughness is comparable to a Lambert, "
+"however, higher values will result in a rougher surface look more suitable for materials like concrete, plaster, sand and so on."
+soft.label STRING "Roughness"
+min FLOAT 0
+max FLOAT 1
+
+[attr base_metalness]
+desc STRING "With metalness 1.0 the surface behaves like metal, using fully specular reflection and complex Fresnel."
+soft.label STRING "Metalness"
+min FLOAT 0
+max FLOAT 1
+
+[attr specular_weight]
+desc STRING "Weight of the specular component."
+soft.label STRING "Weight"
+min FLOAT 0
+max FLOAT 1
+
+[attr specular_color]
+desc STRING "The color of the specular highlights."
+soft.label STRING "Color"
+soft.viewport_guid STRING "{3515CC73-082C-11D0-91DE-00A024C78EE3}"
+
+[attr specular_roughness]
+desc STRING "Controls how blurry/ glossy the specular reflections are. The lower the value, the sharper the reflection. "
+"In the limit, a value of 0 will give you a perfectly sharp mirror reflection, whilst 1.0 will create reflections that are close to diffuse shading."
+soft.label STRING "Roughness"
+min FLOAT 0
+max FLOAT 1
+
+[attr specular_ior]
+desc STRING "Index of refraction of the dielectric base."
+soft.label STRING "IOR"
+min FLOAT 0
+softmin FLOAT 1
+softmax FLOAT 3
+
+[attr specular_ior_level]
+desc STRING "Modulates the dielectric reflectivity at normal incidence between zero and double the original."
+soft.label STRING "IOR level"
+min FLOAT 0
+max FLOAT 1
+
+[attr specular_anisotropy]
+desc STRING "Anisotropy reflects light with a directional bias and causes materials to appear rougher or glossier in certain directions. "
+"Non-zero values apply an anisotropic reflectance effect, similar to brushed metal. The higher this value, the more pronounced "
+"the anisotropic reflectance is. Higher values stretch the specular reflection making the material look rougher in one direction."
+soft.label STRING "Anisotropy"
+min FLOAT 0
+max FLOAT 1
+
+[attr specular_rotation]
+desc STRING "The rotation value changes the orientation of the anisotropy in UV space. At 0.0, there is no rotation, while at 1.0 the effect is rotated by 180 degrees."
+soft.label STRING "Rotation"
+min FLOAT 0
+max FLOAT 1
+
+[attr transmission_weight]
+desc STRING "Allows light to scatter through the surface, for materials such as glass or water."
+soft.label STRING "Weight"
+min FLOAT 0
+max FLOAT 1
+
+[attr transmission_color]
+desc STRING "Filters the refraction according to the distance traveled by the refracted ray. "
+"The longer light travels inside a mesh, the more it is affected by this color."
+soft.label STRING "Color"
+
+[attr transmission_depth]
+desc STRING "Depth into the volume at which the transmission color is realized."
+soft.label STRING "Depth"
+min     FLOAT 0
+softmin FLOAT 0
+softmax FLOAT 10
+
+[attr transmission_scatter]
+desc STRING "Suitable for any kind of liquid that is fairly thick or where there is enough of it "
+"for scattering to be visible, such as a deep body of water or honey. "
+soft.label STRING "Scatter"
+
+[attr transmission_scatter_anisotropy]
+desc STRING "Zero gives isotropic scattering, so that light is scattered evenly in all directions. "
+"Positive values bias the scattering effect forwards, in the direction of the light, while negative values bias the scattering backwards."
+soft.label STRING "Anisotropy"
+min FLOAT -1
+max FLOAT 1
+
+[attr transmission_dispersion_abbe_number]
+desc STRING "Abbe number of the material, which describes how much the index of refraction varies across wavelengths."
+soft.label STRING "Dispersion Abbe number"
+min     FLOAT 0
+softmin FLOAT 0
+softmax FLOAT 100
+
+[attr transmission_dispersion_scale]
+desc STRING "Linearly scales the amount of dispersion."
+soft.label STRING "Dispersion scale"
+min FLOAT 0
+max FLOAT 1
+
+[attr transmission_extra_roughness]
+desc STRING "Additional refraction blurriness."
+soft.label STRING "Extra Roughness"
+min FLOAT -1
+max FLOAT 1
+
+[attr transmission_transmit_aovs]
+soft.label STRING "Transmit AOVs"
+
+[attr dielectric_priority]
+desc STRING "Specifies how to resolve overlapping dielectrics into a well-defined medium, so that higher priority (higher number) dielectrics override lower priority ones which are effectively removed. This is used to correctly set up cases with adjacent dielectric media such as a glass of water with ice."
+softmin INT -3
+softmax INT 3
+
+[attr subsurface_weight]
+desc STRING "The amount of sub-surface scattering. Multiplies SSS Color."
+soft.label STRING "Weight"
+min FLOAT 0
+max FLOAT 1
+
+[attr subsurface_color]
+desc STRING "The color used to determine the subsurface scattering effect. For example, replicating a skin material, would mean setting this to a fleshy color."
+soft.label STRING "Color"
+
+[attr subsurface_radius]
+desc STRING "The radius of the area each sample affects. Higher values will smooth the appearance of the subsurface scattering. "
+"Results will vary depending on the scale of your object in scene."
+soft.label STRING "Radius"
+min     FLOAT 0
+softmin FLOAT 0
+softmax FLOAT 1
+
+[attr subsurface_radius_scale]
+desc STRING "Scales the SSS component."
+soft.label STRING "Radius scale"
+
+[attr subsurface_anisotropy]
+soft.label STRING "Anisotropy"
+min     FLOAT -1
+max     FLOAT 1
+
+[attr coat_weight]
+desc STRING "Clear-coat layer on top of all other shading effects."
+soft.label STRING "Weight"
+min FLOAT 0
+max FLOAT 1
+
+[attr coat_color]
+desc STRING "Color of the coating layer's transparency."
+soft.label STRING "Color"
+
+[attr coat_roughness]
+desc STRING "Glossiness of the specular reflections. The lower the value, the sharper the reflection."
+soft.label STRING "Roughness"
+min FLOAT 0
+max FLOAT 1
+
+[attr coat_ior]
+desc STRING "Index of Refraction."
+soft.label STRING "IOR"
+min FLOAT 0
+softmin FLOAT 0
+softmax FLOAT 3
+
+[attr coat_ior_level]
+desc STRING "Modulates the coat reflectivity at normal incidence between zero and double the original."
+soft.label STRING "IOR level"
+min FLOAT 0
+max FLOAT 1
+
+[attr coat_anisotropy]
+desc STRING "Anisotropy."
+soft.label STRING "Anisotropy"
+min FLOAT 0
+max FLOAT 1
+
+[attr coat_rotation]
+desc STRING "Rotation."
+soft.label STRING "Rotation"
+softmin FLOAT 0
+softmax FLOAT 1
+
+[attr coat_affect_color]
+desc STRING "Affect Color."
+soft.label STRING "Affect Color"
+min FLOAT 0
+max FLOAT 1
+
+[attr coat_affect_roughness]
+desc STRING "Affect Roughness."
+soft.label STRING "Affect Roughness"
+min FLOAT 0
+max FLOAT 1
+
+[attr fuzz_weight]
+desc STRING "Coverage weight of fuzz slab."
+soft.label STRING "Weight"
+min FLOAT 0
+max FLOAT 1
+
+[attr fuzz_color]
+desc STRING "Reflection albedo color fuzz."
+soft.label STRING "Color"
+
+[attr fuzz_roughness]
+desc STRING "Reflection roughness of fuzz."
+soft.label STRING "Roughness"
+min FLOAT 0
+max FLOAT 1
+
+[attr thin_film_thickness]
+desc STRING "Thickness of the thin film interference on the surface. Typical values are between 0 and 3000 nm."
+soft.label STRING "Thickness"
+min FLOAT 0
+softmin FLOAT 0
+softmax FLOAT 2000
+
+[attr thin_film_ior]
+desc STRING "Index of refraction of the thin film."
+soft.label STRING "IOR"
+min FLOAT 0
+softmin FLOAT 1
+softmax FLOAT 3
+
+[attr emission_luminance]
+desc STRING "Controls the amount of emitted light. It can create noise, especially if the source of indirect illumination is very small (a light bulb geometry)."
+soft.label STRING "Luminance"
+min     FLOAT 0
+softmin FLOAT 0
+softmax FLOAT 1000
+
+[attr emission_color]
+desc STRING "The emitted color."
+soft.label STRING "Color"
+
+[attr geometry_opacity]
+desc STRING "Opacity of the surface."
+soft.label STRING "Opacity"
+min FLOAT 0
+max FLOAT 1
+
+[attr geometry_thin_walled]
+desc STRING "Provide the effect of a translucent object being lit from behind "
+"It is recommended that this only be used with thin objects (single sided geometry) "
+"as objects with thickness may render incorrectly."
+soft.label STRING "Thin-Walled"
+
+[attr geometry_normal]
+desc STRING "Connect a normal map here (usually exported from Mudbox or ZBrush)."
+soft.label STRING "Normal"
+soft.inspectable BOOL false
+
+[attr geometry_tangent]
+desc STRING "Custom tangent for specular anisotropic shading. "
+"For example, if the mesh has tangent user data, that could be linked here."
+soft.label STRING "Anisotropy Tangent"
+soft.inspectable BOOL false
+
+[attr geometry_coat_normal]
+desc STRING "Affects the Fresnel blending of the coat over the base, so depending on the normal, "
+"the base will be more or less visible from particular angles."
+soft.label STRING "Normal"
+soft.inspectable BOOL false
+
+[attr caustics]
+desc STRING "Specifies whether indirect diffuse rays will compute direct specular and "
+"indirect specular light components as well as reflection and refraction components."
+soft.label STRING "Enable Caustics"
+
+[attr internal_reflections]
+desc STRING "Unchecking internal reflections will disable indirect specular and mirror perfect reflection "
+"computations when ray refraction depth is bigger than zero (when there has been at least one "
+"refraction ray traced in the current ray tree)."
+soft.label STRING "Internal Reflections"
+
+[attr exit_to_background]
+desc STRING "Specify whether to use the environment color for reflection rays where there was insufficient ray depth (true)."
+soft.label STRING "Exit to Background"
+
+[attr indirect_diffuse]
+desc STRING "Scale the indirect diffuse component."
+soft.label STRING "Indirect Diffuse"
+min FLOAT 0
+max FLOAT 1
+
+[attr indirect_specular]
+desc STRING "Scales the indirect specular component."
+soft.label STRING "Indirect Specular"
+min FLOAT 0
+max FLOAT 1
+
+[attr aov_id1]
+soft.label STRING "AOV Name 1"
+
+[attr id1]
+soft.label STRING "ID 1"
+
+[attr aov_id2]
+soft.label STRING "AOV Name 2"
+
+[attr id2]
+soft.label STRING "ID 2"
+
+[attr aov_id3]
+soft.label STRING "AOV Name 3"
+
+[attr id3]
+soft.label STRING "ID 3"
+
+[attr aov_id4]
+soft.label STRING "AOV Name 4"
+
+[attr id4]
+soft.label STRING "ID 4"
+
+[attr aov_id5]
+soft.label STRING "AOV Name 5"
+
+[attr id5]
+soft.label STRING "ID 5"
+
+[attr aov_id6]
+soft.label STRING "AOV Name 6"
+
+[attr id6]
+soft.label STRING "ID 6"
+
+[attr aov_id7]
+soft.label STRING "AOV Name 7"
+
+[attr id7]
+soft.label STRING "ID 7"
+
+[attr aov_id8]
+soft.label STRING "AOV Name 8"
+
+[attr id8]
+soft.label STRING "ID 8"
+
+##############################################################################
 [node osl]
 soft.skip BOOL true
 
