@@ -79,6 +79,9 @@ public:
 
    CString m_output_driver_color_space;
 
+   bool    m_output_png_skip_alpha;
+   bool    m_output_png_unpremult_alpha;
+
    bool    m_dither;
    bool    m_output_tiff_skip_alpha;
    bool    m_output_tiff_unpremult_alpha;
@@ -288,6 +291,9 @@ public:
       m_overscan_right(INT_MIN),
 
       m_output_driver_color_space(L"auto"),
+
+      m_output_png_skip_alpha(true),
+      m_output_png_unpremult_alpha(true),
 
       m_dither(true),
       m_output_tiff_skip_alpha(false),

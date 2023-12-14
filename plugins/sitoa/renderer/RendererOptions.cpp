@@ -77,6 +77,9 @@ void CRenderOptions::Read(const Property &in_cp)
 
    m_output_driver_color_space = ParAcc_GetValue(in_cp, L"output_driver_color_space", DBL_MAX).GetAsText();
 
+   m_output_png_skip_alpha      = (bool)ParAcc_GetValue(in_cp, L"output_png_skip_alpha",      DBL_MAX);
+   m_output_png_unpremult_alpha = (bool)ParAcc_GetValue(in_cp, L"output_png_unpremult_alpha", DBL_MAX);
+
    m_dither                 = (bool)ParAcc_GetValue(in_cp, L"dither", DBL_MAX);
    m_output_tiff_skip_alpha         = (bool)ParAcc_GetValue(in_cp, L"output_tiff_skip_alpha",      DBL_MAX);
    m_output_tiff_unpremult_alpha    = (bool)ParAcc_GetValue(in_cp, L"output_tiff_unpremult_alpha", DBL_MAX);
@@ -371,6 +374,9 @@ SITOA_CALLBACK CommonRenderOptions_Define(CRef& in_ctxt)
    cpset.AddParameter(L"overscan_right",  CValue::siInt4,   siPersistable | siAnimatable, L"", L"", 10, 0, 10000, 0, 10000, p);
 
    cpset.AddParameter(L"output_driver_color_space", CValue::siString, siPersistable, L"", L"", L"auto", CValue(), CValue(), CValue(), CValue(), p);
+
+   cpset.AddParameter(L"output_png_skip_alpha",          CValue::siBool,   siPersistable, L"", L"", true,   CValue(), CValue(), CValue(), CValue(), p);
+   cpset.AddParameter(L"output_png_unpremult_alpha",     CValue::siBool,   siPersistable, L"", L"", true,   CValue(), CValue(), CValue(), CValue(), p);
 
    cpset.AddParameter(L"dither",                         CValue::siBool,   siPersistable, L"", L"", true,   CValue(), CValue(), CValue(), CValue(), p);
    cpset.AddParameter(L"output_tiff_skip_alpha",         CValue::siBool,   siPersistable, L"", L"", false,  CValue(), CValue(), CValue(), CValue(), p);
@@ -763,6 +769,10 @@ SITOA_CALLBACK CommonRenderOptions_DefineLayout(CRef& in_ctxt)
       item.PutAttribute(siUINoLabel, true);
    layout.EndGroup();
 
+   layout.AddGroup(L"PNG", true, 0);
+      layout.AddItem(L"output_png_skip_alpha", L"Skip Alpha");
+      layout.AddItem(L"output_png_unpremult_alpha", L"Unpremultiplied Alpha");
+   layout.EndGroup();
    layout.AddGroup(L"TIFF", true, 0);
       layout.AddItem(L"output_tiff_skip_alpha", L"Skip Alpha");
       layout.AddItem(L"output_tiff_unpremult_alpha", L"Unpremultiplied Alpha");
@@ -1408,6 +1418,7 @@ SITOA_CALLBACK CommonRenderOptions_PPGEvent(const CRef& in_ctxt)
          SystemTabLogic(cpset);
 
       else if (paramName == L"overscan" || 
+               paramName == L"output_png_skip_alpha" ||
                paramName == L"output_tiff_skip_alpha" ||
                paramName == L"output_tiff_tiled" ||
                paramName == L"output_exr_tiled"  ||
@@ -1578,11 +1589,14 @@ void OutputTabLogic(CustomProperty &in_cp)
    ParAcc_GetParameter(in_cp, L"overscan_left").PutCapabilityFlag(siReadOnly, !overscan);
    ParAcc_GetParameter(in_cp, L"overscan_right").PutCapabilityFlag(siReadOnly, !overscan);
 
+   bool pngSkipAlpha = (bool)ParAcc_GetValue(in_cp, L"output_png_skip_alpha", DBL_MAX);
    bool exrTiled  = (bool)ParAcc_GetValue(in_cp, L"output_exr_tiled", DBL_MAX);
    bool tiffSkipAlpha = (bool)ParAcc_GetValue(in_cp, L"output_tiff_skip_alpha", DBL_MAX);
    bool tiffTiled = (bool)ParAcc_GetValue(in_cp, L"output_tiff_tiled", DBL_MAX);
    bool deepExr = (bool)ParAcc_GetValue(in_cp, L"deep_exr_enable", DBL_MAX);
    bool multipart = (bool)ParAcc_GetValue(in_cp, L"output_exr_multipart", DBL_MAX);
+
+   ParAcc_GetParameter(in_cp, L"output_png_unpremult_alpha").PutCapabilityFlag(siReadOnly, pngSkipAlpha);
 
    ParAcc_GetParameter(in_cp, L"output_tiff_unpremult_alpha").PutCapabilityFlag(siReadOnly, tiffSkipAlpha);
    ParAcc_GetParameter(in_cp, L"output_tiff_append").PutCapabilityFlag(siReadOnly, !tiffTiled);

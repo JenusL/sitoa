@@ -460,6 +460,10 @@ bool LoadDrivers(AtNode *in_optionsNode, Pass &in_pass, double in_frame, bool in
             else if (thisFb.m_driverName == "driver_png")
             {
                CNodeSetter::SetString(driverNode, "format", thisFb.m_driverBitDepth.GetAsciiString());
+               CNodeSetter::SetBoolean(driverNode, "output_padded", (bool)ParAcc_GetValue(in_pass, L"CropWindowEnabled", DBL_MAX));
+               CNodeSetter::SetBoolean(driverNode, "skip_alpha", GetRenderOptions()->m_output_png_skip_alpha);
+               if (!GetRenderOptions()->m_output_png_skip_alpha)
+                  CNodeSetter::SetBoolean(driverNode, "unpremult_alpha", GetRenderOptions()->m_output_png_unpremult_alpha);
                // dither, only for 8bit
                if (thisFb.m_driverBitDepth.IsEqualNoCase(L"int8"))
                   CNodeSetter::SetBoolean(driverNode, "dither", GetRenderOptions()->m_dither);
