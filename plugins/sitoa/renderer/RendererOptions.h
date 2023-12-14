@@ -80,7 +80,8 @@ public:
    CString m_output_driver_color_space;
 
    bool    m_dither;
-   bool    m_unpremult_alpha;
+   bool    m_output_tiff_skip_alpha;
+   bool    m_output_tiff_unpremult_alpha;
    bool    m_output_tiff_tiled;
    CString m_output_tiff_compression;
    bool    m_output_tiff_append;
@@ -289,7 +290,8 @@ public:
       m_output_driver_color_space(L"auto"),
 
       m_dither(true),
-      m_unpremult_alpha(false),
+      m_output_tiff_skip_alpha(false),
+      m_output_tiff_unpremult_alpha(false),
       m_output_tiff_tiled(true),
       m_output_tiff_compression(L"lzw"),
       m_output_tiff_append(false),
