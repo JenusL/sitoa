@@ -481,6 +481,8 @@ CShaderDefShader::CShaderDefShader(AtNodeEntry* in_node_entry, const bool in_clo
    m_is_operator_node = entry_type == AI_NODE_OPERATOR;
    m_is_imager_node = CStringUtilities().StartsWith(m_name, L"imager_");
 
+   m_num_named_outputs = AiNodeEntryGetNumOutputs(m_node_entry);
+
    if (in_clone_vector_map)
       m_type = AI_TYPE_FLOAT;
    else
@@ -611,21 +613,45 @@ CString CShaderDefShader::Define(const bool in_clone_vector_map)
       it->Define(inParamDef, m_name);
    }
 
+   // create all the outputs
    ShaderParamDefContainer outParamDef = m_sd.GetOutputParamDefs();
    ShaderParamDefOptions outOpts = ShaderParamDefOptions(factory.CreateShaderParamDefOptions());
 
-   if (m_is_passthrough_closure) // hack the closure output for the closure connector to color
-      outParamDef.AddParamDef("out", siShaderDataTypeColor4, outOpts);
-   else if (m_is_operator_node)
-      outParamDef.AddParamDef("out", siShaderDataTypeReference, outOpts);
-   else if (m_is_imager_node)
-      outParamDef.AddParamDef("out", siShaderDataTypeReference, outOpts);
+   siShaderParameterDataType outParamType;
+
+   // handle nodes with named outputs
+   if (m_num_named_outputs)
+   {
+      for (LONG i=0; i<m_num_named_outputs; i++)
+      {
+         const AtParamEntry *outParamEntry = AiNodeEntryGetOutput(m_node_entry, i);
+         CString outName = AiParamGetName(outParamEntry);
+         int out_type = AiParamGetType(outParamEntry);
+         outParamType = GetParamSdType(out_type);
+
+         if (out_type == AI_TYPE_CLOSURE)
+            outParamDef.AddParamDef(outName, L"closure", outOpts);
+         else
+            outParamDef.AddParamDef(outName, outParamType, outOpts);
+      }
+   }
+
+   // handle nodes without named outputs
    else
    {
-      if (m_type == AI_TYPE_CLOSURE)
+      if ((m_type == AI_TYPE_CLOSURE) && !m_is_passthrough_closure)
          outParamDef.AddParamDef("out", L"closure", outOpts);
       else
-         outParamDef.AddParamDef("out", GetParamSdType(m_type), outOpts);
+      {
+         
+         if (m_is_passthrough_closure) // hack the closure output for the closure connector to color
+            outParamType = siShaderDataTypeColor4;
+         else if (m_is_operator_node || m_is_imager_node)
+            outParamType = siShaderDataTypeReference;
+         else
+            outParamType = GetParamSdType(m_type);
+         outParamDef.AddParamDef("out", outParamType, outOpts);
+      }
    }
 
    Layout();

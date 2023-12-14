@@ -101,7 +101,8 @@ private:
 
    AtNodeEntry* m_node_entry;
    CString m_filename;                         // so/dll full path
-   int     m_type;                             // output type
+   int     m_num_named_outputs;                // number of named outputs
+   int     m_type;                             // main/first output type
    vector <CShaderDefParameter> m_parameters;  // parameters
 
    bool     m_has_desc;
@@ -136,6 +137,7 @@ public:
       m_sd_created(in_arg.m_sd_created),
       m_node_entry(in_arg.m_node_entry),
       m_filename(in_arg.m_filename),
+      m_num_named_outputs(in_arg.m_num_named_outputs), 
       m_type(in_arg.m_type),
       m_parameters(in_arg.m_parameters),
       m_has_desc(in_arg.m_has_desc), m_desc(in_arg.m_desc),
