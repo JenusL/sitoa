@@ -131,20 +131,20 @@ public:
    {
    }
 
-   CShaderDefShader(const CShaderDefShader &in_arg) : 
-      m_sd(in_arg.m_sd), 
-      m_sd_created(in_arg.m_sd_created), 
+   CShaderDefShader(const CShaderDefShader &in_arg) :
+      m_sd(in_arg.m_sd),
+      m_sd_created(in_arg.m_sd_created),
       m_node_entry(in_arg.m_node_entry),
-      m_filename(in_arg.m_filename), 
-      m_type(in_arg.m_type), 
+      m_filename(in_arg.m_filename),
+      m_type(in_arg.m_type),
       m_parameters(in_arg.m_parameters),
       m_has_desc(in_arg.m_has_desc), m_desc(in_arg.m_desc),
       m_has_category(in_arg.m_has_category), m_category(in_arg.m_category),
       m_has_order(in_arg.m_has_order), m_order(in_arg.m_order),
       m_has_deprecated(in_arg.m_has_deprecated), m_deprecated(in_arg.m_deprecated),
       m_name(in_arg.m_name),
-      m_so_name(in_arg.m_so_name), 
-      m_is_camera_node(in_arg.m_is_camera_node), 
+      m_so_name(in_arg.m_so_name),
+      m_is_camera_node(in_arg.m_is_camera_node),
       m_is_passthrough_closure(in_arg.m_is_passthrough_closure),
       m_is_operator_node(in_arg.m_is_operator_node),
       m_is_imager_node(in_arg.m_is_imager_node),
