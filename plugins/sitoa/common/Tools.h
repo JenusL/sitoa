@@ -51,6 +51,7 @@ namespace ATSTRING
    const AtString ginstance("ginstance");
    const AtString image("image");
    const AtString mesh_light("mesh_light");
+   const AtString persp_camera("persp_camera");
    const AtString photometric_light("photometric_light");
    const AtString physical_sky("physical_sky");
    const AtString points("points");
@@ -61,6 +62,7 @@ namespace ATSTRING
    const AtString vector_map("vector_map");
    // node params
    const AtString filename("filename");
+   const AtString lut_filename("lut_filename");
    const AtString name("name");
    // camera param names
    const AtString position("position");
@@ -105,7 +107,7 @@ namespace VERBOSITY
 {
    const int errors = AI_LOG_ERRORS | AI_LOG_TIMESTAMP | AI_LOG_MEMORY | AI_LOG_BACKTRACE;
    const int warnings = AI_LOG_ERRORS | AI_LOG_TIMESTAMP | AI_LOG_MEMORY | AI_LOG_BACKTRACE | AI_LOG_WARNINGS;
-   const int info = AI_LOG_ERRORS | AI_LOG_TIMESTAMP | AI_LOG_MEMORY | AI_LOG_BACKTRACE | AI_LOG_WARNINGS | AI_LOG_INFO | AI_LOG_STATS | AI_LOG_PROGRESS;
+   const int info = AI_LOG_ERRORS | AI_LOG_TIMESTAMP | AI_LOG_MEMORY | AI_LOG_BACKTRACE | AI_LOG_WARNINGS | AI_LOG_INFO | AI_LOG_STATS | AI_LOG_PLUGINS | AI_LOG_PROGRESS;
    const int all = AI_LOG_ALL;
 };
 

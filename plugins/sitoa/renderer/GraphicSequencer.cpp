@@ -602,9 +602,9 @@ bool CGSUserData::Initialize()
 {
    // Until we don't have multiple universes, we have to destroy the current one (if any) and create a new one.
    // So the ipr scene will be destroyed after you open the GS
-   if (AiUniverseIsActive())
+   if (AiArnoldIsActive())
       GetRenderInstance()->DestroyScene(false);
-   if (AiUniverseIsActive())
+   if (AiArnoldIsActive())
       return false;
 
    Property prop;
@@ -615,7 +615,7 @@ bool CGSUserData::Initialize()
          m_useAsstoc = (bool)ParAcc_GetValue(prop, L"use_asstoc", DBL_MAX);
 
    AiBegin(GetSessionMode());
-   AtNode *options = AiUniverseGetOptions();
+   AtNode *options = AiUniverseGetOptions(NULL);
    CNodeSetter::SetBoolean(options, "skip_license_check", true);
    CNodeSetter::SetBoolean(options, "enable_procedural_cache", false); // for #1660
    
@@ -672,7 +672,7 @@ bool CGSUserData::Initialize()
          if (GetBoundingBoxFromScnToc(asstocFilename, bbMin, bbMax))
          {
             asstocFound = true;
-            node = AiNode("box");
+            node = AiNode(NULL, "box");
             CNodeSetter::SetVector(node, "min", bbMin.GetX(), bbMin.GetY(), bbMin.GetZ());
             CNodeSetter::SetVector(node, "max", bbMax.GetX(), bbMax.GetY(), bbMax.GetZ());
          }
@@ -680,7 +680,7 @@ bool CGSUserData::Initialize()
 
       if (!asstocFound)
       {
-         node = AiNode("procedural");
+         node = AiNode(NULL, "procedural");
          if (!node)
             continue;
          CNodeSetter::SetString(node,  "filename", filename.GetAsciiString());
@@ -701,21 +701,21 @@ bool CGSUserData::Initialize()
    // CString tempPath = L"C:\\temp";
    CString tempPath = CUtils::ResolvePath(L"$TEMP"); // the Softimage temp dir, deleted on exit
    CString assPath = CUtils::BuildPath(tempPath, L"SITOA_Viewer.ass");
-   AiASSWrite(assPath.GetAsciiString(), AI_NODE_ALL, true);
+   AiASSWrite(NULL, assPath.GetAsciiString(), AI_NODE_ALL, true);
    // ok, done
    AiEnd();
 
    // now read back the resavep-ed universe
    AiBegin(GetSessionMode());
-   options = AiUniverseGetOptions();
+   options = AiUniverseGetOptions(NULL);
    CNodeSetter::SetBoolean(options, "preserve_scene_data", true);
    CNodeSetter::SetBoolean(options, "skip_license_check", true);
 
-   AiASSLoad(assPath.GetAsciiString());
+   AiASSLoad(NULL, assPath.GetAsciiString());
 
    AtMatrix matrix;
 
-   AtNodeIterator *iter = AiUniverseGetNodeIterator(AI_NODE_SHAPE);
+   AtNodeIterator *iter = AiUniverseGetNodeIterator(NULL, AI_NODE_SHAPE);
    while (!AiNodeIteratorFinished(iter))
    {
       AtNode *node = AiNodeIteratorGetNext(iter);
@@ -910,7 +910,7 @@ XSIPLUGINCALLBACK	void SITOA_Viewer_Term(CRef in_sequencerContext, LPVOID *in_us
 SITOA_CALLBACK SITOA_Viewer_Term(CRef in_sequencerContext, LPVOID *in_userData)
 #endif
 {
-   if (AiUniverseIsActive())
+   if (AiArnoldIsActive())
       GetRenderInstance()->DestroyScene(false);
 
 #ifdef _WINDOWS

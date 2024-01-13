@@ -18,9 +18,9 @@ under an Apache 2.0 open source license.
 #### Requirements
 
 * Softimage 2015 SP1
-* Arnold 5.4.0.1 or newer
+* Arnold 7.2.5.0 or newer
 * Python 2.6 or newer
-* Visual Studio 2012 (Windows)
+* Visual Studio 2015 (Windows)
 * GCC 4.2.4 (Linux)
 
 On Linux, newer compilers may work but require modifying the Softimage installation to
@@ -60,17 +60,17 @@ For commonly used values you will normally edit your custom.py file (located in 
 
 ```python
 TARGET_ARCH         = 'x86_64'
-MSVC_VERSION        = '11.0'
-VS_HOME             = r'C:/Program Files (x86)/Microsoft Visual Studio 11.0/VC'
-WINDOWS_KIT         = r'C:/Program Files (x86)/Windows Kits/8.0'
+MSVC_VERSION        = '14.0'
+VS_HOME             = r'C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC'
+WINDOWS_KIT         = r'C:/Program Files (x86)/Windows Kits/10'
 
-XSISDK_ROOT         = r'C:/Program Files/Autodesk/Softimage 2015/XSISDK'
-ARNOLD_HOME         = r'C:/SolidAngle/Arnold-5.4.0.1/win64'
+XSISDK_ROOT         = r'C:/Program Files/Autodesk/Softimage 2015 SP2/XSISDK'
+ARNOLD_HOME         = r'C:/SolidAngle/Arnold-7.2.5.0-windows'
 
 TARGET_WORKGROUP_PATH  = r'./Softimage_2015/Addons/SItoA'
 
 WARN_LEVEL = 'strict'
-MODE       = 'debug'
+MODE       = 'opt'  # or 'debug'
 SHOW_CMDS  = True
 
 PATCH_ADLM = True

@@ -54,10 +54,10 @@ CRef GetParameterSource(const Parameter& in_param)
             if (shader.GetShaderType() == siShader)
             {
                // we detect the output by the name out and result which is the most common case
-               if (shaderParam.GetScriptName() == L"out" || shaderParam.GetScriptName() == L"result" )
+               ShaderParamDef shaderParmDef = ShaderParameter(shaderParam).GetDefinition();
+               if (shaderParmDef.IsOutput())
                   target = shader.GetRef();
             }
-
          }
       }
       return target;
@@ -104,7 +104,9 @@ CStatus LoadShaderParameters(AtNode* in_node, CRefArray &in_paramsArray, double 
 
       // Ignoring Softimage nonused and output parameters
       CString paramScriptName = param.GetScriptName();
-      if (paramScriptName.IsEqualNoCase(L"Name") || paramScriptName.IsEqualNoCase(L"out") || paramScriptName.IsEqualNoCase(L"result") )
+      ShaderParameter shaderParam(param);
+      ShaderParamDef paramDef = shaderParam.GetDefinition();
+      if (paramScriptName.IsEqualNoCase(L"Name") || paramDef.IsOutput())
          continue;
 
       // skip lights' filter plugs, they are loaded separately
@@ -194,7 +196,26 @@ CStatus LoadShaderParameter(AtNode* in_node, const CString &in_entryName, Parame
             if (in_arrayElement != -1)
                paramScriptName = in_arrayParamName + L"[" + CString(CValue(in_arrayElement).GetAsText()) + L"]";
 
-            AiNodeLink(shaderLinked, paramScriptName.GetAsciiString(), in_node);
+            const AtNodeEntry* node_entry = AiNodeGetNodeEntry(shaderLinked);
+            int num_outputs = AiNodeEntryGetNumOutputs(node_entry);
+            CString component = L"";
+
+            if (num_outputs > 1)
+            {
+               // if it's a multi output shader, we need to get the name of the source output.
+               ShaderParameter sourceParm = in_param.GetSource();
+               CRef parent = sourceParm.GetParent();
+               if (parent.IsA(siShaderID))
+               {
+                  Shader parentShader(parent);
+                  // if parent is a compound, we need to get the source
+                  if (parentShader.GetShaderType() == siShaderCompound)
+                     sourceParm = sourceParm.GetSource();
+               }
+               component = sourceParm.GetScriptName();
+            }
+
+            AiNodeLinkOutput(shaderLinked, component.GetAsciiString(), in_node, paramScriptName.GetAsciiString());
          }
       }
    }
@@ -298,14 +319,6 @@ CStatus LoadShaderParameter(AtNode* in_node, const CString &in_entryName, Parame
             paramName = in_arrayParamName;
 
          LoadParameterValue(in_node, in_entryName, paramName, paramSource, in_frame, in_arrayElement, in_ref);
-
-         // #1906: image shader ? If requested, substitute the filename with its tx version, if found
-         if (GetRenderOptions()->m_use_existing_tx_files && in_entryName == L"image" && paramName == L"filename")
-         {
-            const char *filename = AiNodeGetStr(in_node, "filename");
-            filename = CPathTranslator::TranslatePath(filename, true);
-            AiNodeSetStr(in_node, "filename", filename);
-         }
       }
    }
    else if (sourceID == siFCurveID)
@@ -372,7 +385,6 @@ CStatus LoadArraySwitcherParameter(AtNode *in_node, const Parameter &in_param, d
 
          CString arrayLink = L"values[" + (CValue(in_arrayElement).GetAsText()) + L"]";
          AiNodeLink(shaderLinked, arrayLink.GetAsciiString(), in_node);
-         continue;
       }
 
       CValue::DataType dataType = p.GetValueType();

@@ -50,6 +50,8 @@ def copy_dir_recursive(src, dest):
             #shutil.copystat(src_path, dest_path)
             copy_dir_recursive(src_path, dest_path)
       else:
+         if not os.path.isdir(dest):
+            os.makedirs(dest)
          shutil.copy2(src_path, dest_path)
 
 ## handy function to remove files only if they exist
@@ -160,16 +162,18 @@ def get_latest_revision():
    url      = 'not found'
 
    p = subprocess.Popen('git status -b --porcelain=2', shell=True, stdout = subprocess.PIPE)
-   retcode = p.wait()
+   stdoutdata, stderrdata = p.communicate()
+   retcode = p.returncode
    
-   for line in p.stdout:
+   for line in stdoutdata.splitlines():
       if line.startswith('# branch.oid '):
          revision = line.split()[-1]
 
    p = subprocess.Popen('git remote get-url origin', shell=True, stdout = subprocess.PIPE)
-   retcode = p.wait()
+   stdoutdata, stderrdata = p.communicate()
+   retcode = p.returncode
    
-   for line in p.stdout:
+   for line in stdoutdata.splitlines():
       if line.startswith('https://'):
          url = line.strip()
          url = url[:-4]

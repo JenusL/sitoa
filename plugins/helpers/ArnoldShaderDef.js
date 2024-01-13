@@ -32,6 +32,7 @@ function XSILoadPlugin( in_reg )
    in_reg.RegisterShader("aov_write_int", 1, 0);
    in_reg.RegisterShader("aov_write_rgb", 1, 0);
    in_reg.RegisterShader("aov_write_rgba", 1, 0);
+   in_reg.RegisterShader("aov_write_vector", 1, 0);
    in_reg.RegisterShader("atan", 1, 0);
    in_reg.RegisterShader("atmosphere_volume", 1, 0);
    in_reg.RegisterShader("blackbody", 1, 0);
@@ -55,6 +56,7 @@ function XSILoadPlugin( in_reg )
    in_reg.RegisterShader("cross", 1, 0);
    in_reg.RegisterShader("cryptomatte", 1, 0);
    in_reg.RegisterShader("curvature", 1, 0);
+   in_reg.RegisterShader("distance", 1, 0);
    in_reg.RegisterShader("divide", 1, 0);
    in_reg.RegisterShader("dot", 1, 0);
    in_reg.RegisterShader("exp", 1, 0);
@@ -144,6 +146,16 @@ function XSILoadPlugin( in_reg )
    in_reg.RegisterShader("volume_sample_float", 1, 0);
    in_reg.RegisterShader("volume_sample_rgb", 1, 0);
    in_reg.RegisterShader("wireframe", 1, 0);
+   // imagers
+   in_reg.RegisterShader("imager", 1, 0);
+   in_reg.RegisterShader("imager_color_correct", 1, 0);
+   in_reg.RegisterShader("imager_denoiser_noice", 1, 0);
+   in_reg.RegisterShader("imager_denoiser_oidn", 1, 0);
+   in_reg.RegisterShader("imager_denoiser_optix", 1, 0);
+   in_reg.RegisterShader("imager_exposure", 1, 0);
+   in_reg.RegisterShader("imager_lens_effects", 1, 0);
+   in_reg.RegisterShader("imager_tonemap", 1, 0);
+   in_reg.RegisterShader("imager_white_balance", 1, 0);
    // operators
    in_reg.RegisterShader("disable", 1, 0);
    in_reg.RegisterShader("collection", 1, 0);
@@ -153,6 +165,7 @@ function XSILoadPlugin( in_reg )
    in_reg.RegisterShader("operator", 1, 0);
    in_reg.RegisterShader("set_parameter", 1, 0);
    in_reg.RegisterShader("set_transform", 1, 0);
+   in_reg.RegisterShader("string_replace", 1, 0);
    in_reg.RegisterShader("switch_operator", 1, 0);
 
    // in_reg.Help = "https://support.solidangle.com/display/A5SItoAUG/Shaders";
@@ -184,6 +197,8 @@ function Arnold_aov_write_rgb_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_aov_write_rgb_1_0_Define(in_ctxt) { return true; }
 function Arnold_aov_write_rgba_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_aov_write_rgba_1_0_Define(in_ctxt) { return true; }
+function Arnold_aov_write_vector_1_0_DefineInfo(in_ctxt) { return true; }
+function Arnold_aov_write_vector_1_0_Define(in_ctxt) { return true; }
 function Arnold_atan_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_atan_1_0_Define(in_ctxt) { return true; }
 function Arnold_atmosphere_volume_1_0_DefineInfo(in_ctxt) { return true; }
@@ -230,6 +245,8 @@ function Arnold_cryptomatte_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_cryptomatte_1_0_Define(in_ctxt) { return true; }
 function Arnold_curvature_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_curvature_1_0_Define(in_ctxt) { return true; }
+function Arnold_distance_1_0_DefineInfo(in_ctxt) { return true; }
+function Arnold_distance_1_0_Define(in_ctxt) { return true; }
 function Arnold_divide_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_divide_1_0_Define(in_ctxt) { return true; }
 function Arnold_dot_1_0_DefineInfo(in_ctxt) { return true; }
@@ -409,6 +426,24 @@ function Arnold_volume_sample_rgb_1_0_Define(in_ctxt) { return true; }
 function Arnold_wireframe_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_wireframe_1_0_Define(in_ctxt) { return true; }
 
+// imagers
+function Arnold_imager_color_correct_1_0_DefineInfo(in_ctxt) { return true; }
+function Arnold_imager_color_correct_1_0_Define(in_ctxt) { return true; }
+function Arnold_imager_denoiser_noice_1_0_DefineInfo(in_ctxt) { return true; }
+function Arnold_imager_denoiser_noice_1_0_Define(in_ctxt) { return true; }
+function Arnold_imager_denoiser_oidn_1_0_DefineInfo(in_ctxt) { return true; }
+function Arnold_imager_denoiser_oidn_1_0_Define(in_ctxt) { return true; }
+function Arnold_imager_denoiser_optix_1_0_DefineInfo(in_ctxt) { return true; }
+function Arnold_imager_denoiser_optix_1_0_Define(in_ctxt) { return true; }
+function Arnold_imager_exposure_1_0_DefineInfo(in_ctxt) { return true; }
+function Arnold_imager_exposure_1_0_Define(in_ctxt) { return true; }
+function Arnold_imager_lens_effects_1_0_DefineInfo(in_ctxt) { return true; }
+function Arnold_imager_lens_effects_1_0_Define(in_ctxt) { return true; }
+function Arnold_imager_tonemap_1_0_DefineInfo(in_ctxt) { return true; }
+function Arnold_imager_tonemap_1_0_Define(in_ctxt) { return true; }
+function Arnold_imager_white_balance_1_0_DefineInfo(in_ctxt) { return true; }
+function Arnold_imager_white_balance_1_0_Define(in_ctxt) { return true; }
+
 // operators
 function Arnold_collection_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_collection_1_0_Define(in_ctxt) { return true; }
@@ -424,6 +459,8 @@ function Arnold_set_parameter_1_0_DefineInfo(in_ctxt) { return true; }
 //function Arnold_set_parameter_1_0_Define(in_ctxt) { return true; }
 function Arnold_set_transform_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_set_transform_1_0_Define(in_ctxt) { return true; }
+function Arnold_string_replace_1_0_DefineInfo(in_ctxt) { return true; }
+function Arnold_string_replace_1_0_Define(in_ctxt) { return true; }
 function Arnold_switch_operator_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_switch_operator_1_0_Define(in_ctxt) { return true; }
 
@@ -526,6 +563,33 @@ function physical_sky_RemoveExpression_OnClicked()
    RemoveAnimation(pset + ".Z.x", null, null, null, null, null);
    RemoveAnimation(pset + ".Z.y", null, null, null, null, null);
    RemoveAnimation(pset + ".Z.z", null, null, null, null, null);
+}
+
+function Arnold_imager_1_0_DefineInfo(in_ctxt)
+{
+   in_ctxt.SetAttribute("DisplayName", "imager");
+   in_ctxt.SetAttribute("Category", "Arnold/Imagers");
+   return true;
+}
+
+function Arnold_imager_1_0_Define(in_ctxt)
+{
+   var h = SItoAShaderDefHelpers(); // helper object
+
+   var shaderDef = in_ctxt.GetAttribute("Definition");
+   shaderDef.AddShaderFamily(siShaderFamilyLens);
+
+   // INPUT
+   params = shaderDef.InputParamDefs;
+   h.AddNode(params, "imager");
+
+   // OUTPUT
+   h.AddOutputColor4(shaderDef.OutputParamDefs);
+
+   // Renderer definition
+   h.AddArnoldRendererDef(shaderDef);
+
+   return true;
 }
 
 function Arnold_operator_1_0_DefineInfo(in_ctxt)

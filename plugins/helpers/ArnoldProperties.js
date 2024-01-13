@@ -531,6 +531,7 @@ function AddParamsShape(in_prop)
 function AddParamsCurve(in_prop, strands)
 {
    in_prop.AddParameter2("mode", siString, "ribbon", null, null, null, null, 0, siPersistable|siAnimatable);
+   in_prop.AddParameter2("basis", siString, "catmull-rom", null, null, null, null, 0, siPersistable|siAnimatable);
    in_prop.AddParameter2("min_pixel_width", siFloat, 0.25, 0, 2, 0, 2, 0, siPersistable|siAnimatable);
 }
 
@@ -545,11 +546,13 @@ function AddParamsSubdivision(in_prop, strands)
 
    in_prop.AddParameter2("disp_autobump",                  siBool, 1, 0, 1, 0, 1, 0, siPersistable|siAnimatable);
    in_prop.AddParameter2("autobump_camera",                siBool, 1, 0, 1, 0, 1, 0, siPersistable|siAnimatable);
+   in_prop.AddParameter2("autobump_shadow",                siBool, 0, 0, 1, 0, 1, 0, siPersistable|siAnimatable);
    in_prop.AddParameter2("autobump_diffuse_reflection",    siBool, 0, 0, 1, 0, 1, 0, siPersistable|siAnimatable);
    in_prop.AddParameter2("autobump_specular_reflection",   siBool, 0, 0, 1, 0, 1, 0, siPersistable|siAnimatable);
    in_prop.AddParameter2("autobump_diffuse_transmission",  siBool, 0, 0, 1, 0, 1, 0, siPersistable|siAnimatable);
    in_prop.AddParameter2("autobump_specular_transmission", siBool, 0, 0, 1, 0, 1, 0, siPersistable|siAnimatable);
    in_prop.AddParameter2("autobump_volume_scattering",     siBool, 0, 0, 1, 0, 1, 0, siPersistable|siAnimatable);
+   in_prop.AddParameter2("autobump_subsurface",            siBool, 0, 0, 1, 0, 1, 0, siPersistable|siAnimatable);
 
    in_prop.AddParameter2("adaptive_subdivision",   siBool,   0,        0,       1,      0,    1,    0, siPersistable|siAnimatable);
    in_prop.AddParameter2("subdiv_adaptive_metric", siString, "auto",   null,    null,   null, null, 0, siPersistable|siAnimatable);   
@@ -739,11 +742,13 @@ function arnold_parameters_DefineLayout(io_Context)
       item = xsiLayout.AddItem("disp_autobump", "Autobump");
       xsiLayout.AddGroup("Autobump Visibility", true);
          item = xsiLayout.AddItem("autobump_camera", "Camera (primary)");
+         item = xsiLayout.AddItem("autobump_shadow", "Shadow");
          item = xsiLayout.AddItem("autobump_diffuse_reflection", "Diffuse Reflection");
          item = xsiLayout.AddItem("autobump_specular_reflection", "Specular Reflection");
          item = xsiLayout.AddItem("autobump_diffuse_transmission", "Diffuse Transmission");
          item = xsiLayout.AddItem("autobump_specular_transmission", "Specular Transmission");
          item = xsiLayout.AddItem("autobump_volume_scattering", "Volume Scattering");
+         item = xsiLayout.AddItem("autobump_subsurface", "Subsurface Scattering");
       xsiLayout.EndGroup();
    xsiLayout.EndGroup();
    xsiLayout.AddGroup("Subdivision", true);
@@ -781,7 +786,8 @@ function arnold_parameters_DefineLayout(io_Context)
    {
       xsiLayout.AddGroup("Arnold Curves Parameters", true, 50);
          xsiLayout.AddItem("min_pixel_width", "Min. Pixel Width");
-         xsiLayout.AddEnumControl( "mode", Array( "Ribbon", "ribbon", "Thick", "thick", "Oriented Ribbon (ICE Strands)", "oriented"), "Mode", siControlCombo);
+         xsiLayout.AddEnumControl("mode", Array("Ribbon", "ribbon", "Thick", "thick", "Oriented Ribbon (ICE Strands)", "oriented"), "Mode", siControlCombo);
+         xsiLayout.AddEnumControl("basis", Array("B-Spline", "b-spline", "Catmull-Rom (ICE Strands)", "catmull-rom", "Linear", "linear"), "Basis", siControlCombo);
       xsiLayout.EndGroup();
    }
    catch(exception)
@@ -830,6 +836,12 @@ function arnold_camera_options_Define(io_Context)
    prop.AddParameter2("camera_type", siString, "persp_camera", siPersistable|siAnimatable);
 
    prop.AddParameter2("exposure", siFloat, 0, -10000, 10000, -5, 5, 0, siPersistable|siAnimatable);
+
+   // perspective
+   prop.AddParameter2("persp_radial_distortion", siFloat, 0, -10000, 10000, -0.2, 2.0, 0, siPersistable|siAnimatable);
+   prop.AddParameter2("persp_radial_distortion_type", siString, "cubic", siPersistable|siAnimatable);
+   prop.AddParameter2("persp_lens_tilt_angle_x", siFloat, 0, -10000, 10000, -45, 45, 0, siPersistable|siAnimatable);
+   prop.AddParameter2("persp_lens_tilt_angle_y", siFloat, 0, -10000, 10000, -45, 45, 0, siPersistable|siAnimatable);
 
    // cylindrical
    prop.AddParameter2("cyl_horizontal_fov", siFloat, 60, 0.001, 360, 0.001, 360, 0, siPersistable|siAnimatable);
@@ -902,6 +914,24 @@ function arnold_camera_options_DefineLayout(io_Context)
    layout.AddGroup("Exposure");
       item = layout.AddItem("exposure", "")
       item.SetAttribute(siUINoLabel, true);
+   layout.EndGroup();
+
+   layout.AddGroup("Perspective");
+      item = layout.AddItem("persp_radial_distortion", "Radial Distortion");
+      item.SetAttribute(siUILabelMinPixels, 130);
+      item.SetAttribute(siUILabelPercentage, 50);
+      item = layout.AddEnumControl("persp_radial_distortion_type", Array("Cubic",         "cubic",
+                                                                         "Cubic Inverse", "cubic_inverse"), "Radial Distortion Type", siControlCombo);
+      item.SetAttribute(siUILabelMinPixels, 130);
+      item.SetAttribute(siUILabelPercentage, 50);
+      layout.AddGroup("Lens Tilt Angle")
+         layout.AddRow();
+            item = layout.AddItem("persp_lens_tilt_angle_x", "X");
+            item.SetAttribute(siUINoLabel, true);
+            item = layout.AddItem("persp_lens_tilt_angle_y", "Y");
+            item.SetAttribute(siUINoLabel, true);
+         layout.EndRow();
+      layout.EndGroup();
    layout.EndGroup();
 
    layout.AddGroup("Cylindrical");
@@ -1053,6 +1083,11 @@ function arnold_camera_options_OnInit()
 function arnold_camera_options_camera_type_OnChanged()
 {
    var cameraType = PPG.camera_type.Value;
+
+   PPG.persp_radial_distortion.Enable(cameraType == "persp_camera");
+   PPG.persp_radial_distortion_type.Enable(cameraType == "persp_camera");
+   PPG.persp_lens_tilt_angle_x.Enable(cameraType == "persp_camera");
+   PPG.persp_lens_tilt_angle_y.Enable(cameraType == "persp_camera");
 
    PPG.cyl_horizontal_fov.Enable(cameraType == "cyl_camera");
    PPG.cyl_vertical_fov.Enable(cameraType == "cyl_camera");
@@ -1230,11 +1265,13 @@ function arnold_parameters_disp_autobump_OnChanged()
    if (oCustomProperty.Parameters("autobump_camera") != null)
    {
       PPG.autobump_camera.Enable(autobump_on);
+      PPG.autobump_shadow.Enable(autobump_on);
       PPG.autobump_diffuse_reflection.Enable(autobump_on);
       PPG.autobump_specular_reflection.Enable(autobump_on);
       PPG.autobump_diffuse_transmission.Enable(autobump_on);
       PPG.autobump_specular_transmission.Enable(autobump_on);
       PPG.autobump_volume_scattering.Enable(autobump_on);
+      PPG.autobump_subsurface.Enable(autobump_on);
    }
 }
 
@@ -1252,9 +1289,6 @@ function arnold_parameters_adaptive_subdivision_OnChanged()
 
 function arnold_parameters_mode_OnChanged() 
 {
-   if (PPG.mode.Value=="thick")
-      PPG.min_pixel_width.Value = 0;
-      
    PPG.min_pixel_width.Enable(PPG.mode.Value=="ribbon" || PPG.mode.Value=="oriented");
 }
 
@@ -1279,6 +1313,10 @@ function arnold_procedural_Define(io_Context)
    p = customProperty.AddParameter2("overrideFrame", siBool, 0, 0, 1, 0, 5, 0, siPersistable|siAnimatable);	
    p = customProperty.AddParameter2("frame", siInt4, 1, -1000000, 1000000, 1, 100, siClassifAppearance, siPersistable|siAnimatable);
    p.enable(false);
+
+   p = customProperty.AddParameter2("override_nodes", siBool, 0, 0, 1, 0, 1, 0, siPersistable|siAnimatable);
+   p = customProperty.AddParameter2("auto_instancing", siBool, 1, 0, 1, 0, 1, 0, siPersistable|siAnimatable);
+   p = customProperty.AddParameter2("namespace", siString, "", "", "", "", "", 0, siPersistable|siAnimatable);
 
    // new (2.2) viewer parameters at object's level
    p = customProperty.AddParameter2("mode", siInt4, 0, 0, 2, 0, 2, siClassifAppearance, siPersistable|siAnimatable);
@@ -1317,10 +1355,16 @@ function arnold_procedural_DefineLayout(io_Context)
 
    xsiLayout.AddRow()
       xsiItem = xsiLayout.AddItem("overrideFrame", "Override Frame");
-      xsiItem.WidthPercentage = 40;
+      xsiItem.WidthPercentage = 50;
       xsiItem = xsiLayout.AddItem("frame", "Frame");
-      xsiItem.WidthPercentage = 60;
+      xsiItem.WidthPercentage = 50;
+      xsiItem.SetAttribute(siUILabelMinPixels, 50);
+      xsiItem.SetAttribute(siUILabelPercentage, 10);
    xsiLayout.EndRow()
+
+   xsiItem = xsiLayout.AddItem("override_nodes", "Override Nodes");
+   xsiItem = xsiLayout.AddItem("auto_instancing", "Auto Instancing");
+   xsiItem = xsiLayout.AddItem("namespace", "Namespace");
 
    UserDataLayout(xsiLayout, true);
 

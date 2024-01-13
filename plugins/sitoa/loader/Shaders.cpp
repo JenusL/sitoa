@@ -217,7 +217,7 @@ AtNode* LoadShader(const Shader &in_shader, double in_frame, const CRef &in_ref,
 
    if (!shaderNode) // Not exported yet, we have to create it
    {
-      shaderNode = AiNode(shaderName.GetAsciiString());
+      shaderNode = AiNode(NULL, shaderName.GetAsciiString());
    
       if (!shaderNode)
       {
@@ -258,13 +258,11 @@ CPathString GetClipSourceFileName(ImageClip2 &in_xsiImageClip, double in_frame)
    if (!timeSource)
       sourceFileName = in_xsiImageClip.GetFileName();
 
-   bool substituteTx = GetRenderOptions()->m_use_existing_tx_files;
-
    // Get FileName from ImageClip (if the image is a sequence XSI will give us the correct filename)
    if (GetRenderOptions()->m_save_texture_paths) // using absolute paths
    {
       // Translate path
-      CPathString result(CPathTranslator::TranslatePath(sourceFileName.GetAsciiString(), substituteTx));
+      CPathString result(CPathTranslator::TranslatePath(sourceFileName.GetAsciiString(), false));
       return result;
    }
 
@@ -274,7 +272,7 @@ CPathString GetClipSourceFileName(ImageClip2 &in_xsiImageClip, double in_frame)
    if (GetRenderInstance()->GetTexturesSearchPath().GetPaths(texturesSearchPaths))
    {
       // translate the full texture path, also substituting .tx, in case
-      const char *translatedPath = CPathTranslator::TranslatePath(sourceFileName.GetAsciiString(), substituteTx);
+      const char *translatedPath = CPathTranslator::TranslatePath(sourceFileName.GetAsciiString(), false);
       bool isPathTranslatorInitialized = CPathTranslator::IsInitialized(); // using linktab?
       unsigned int pathTranslatorMode = CPathTranslator::GetTranslationMode(); // w2l (default) or l2w?
 
@@ -312,7 +310,7 @@ AtNode* LoadImageClip(ImageClip2 &in_xsiImageClip, double in_frame)
       return shaderNode;
 
    // not found, let's create it
-   shaderNode = AiNode("sib_image_clip");
+   shaderNode = AiNode(NULL, "sib_image_clip");
    if (!shaderNode)
       return NULL;
 
@@ -374,7 +372,7 @@ CStatus LoadPassShaders(double in_frame, bool in_selectionOnly)
    CRef envParamRef;
    envParamRef.Set(pass.GetFullName() + L".EnvironmentShaderStack" + suffix);
    Parameter passParam(envParamRef);
-   AtNode* options = AiUniverseGetOptions();
+   AtNode* options = AiUniverseGetOptions(NULL);
 
    Shader backgroundShader = GetConnectedShader(passParam);
    if (backgroundShader.IsValid())
@@ -481,11 +479,11 @@ CStatus LoadTextureLayers(AtNode* shaderNode, const Shader &xsiShader, double fr
          // also the targetparam name
          CString layerName = textureLayer.GetFullName() + L"." + targetParam.GetName() + L".SItoA." + CString(CTimeUtilities().FrameTimes1000(frame));
 
-         AtNode* layerNode = AiNodeLookUpByName(layerName.GetAsciiString());
+         AtNode* layerNode = AiNodeLookUpByName(NULL, layerName.GetAsciiString());
          AtNode* previousLayerNode = GetPreviousLayerPort(textureLayersArray, targetParam.GetName(), ilayer, soloActive, frame);
 
          if (layerNode == NULL)
-            layerNode = AiNode("sib_texturelayer");
+            layerNode = AiNode(NULL, "sib_texturelayer");
 
          // Created ok or previously found
          if (layerNode!=NULL)
@@ -576,7 +574,7 @@ AtNode* GetPreviousLayerPort(const CRefArray &textureLayersArray, const CString 
          if (targetParam.GetName().IsEqualNoCase(targetParamName))
          {
             CString layerName = textureLayer.GetFullName() + L"." + targetParam.GetName() + L".SItoA." + CString(CTimeUtilities().FrameTimes1000(frame));
-            previousLayerNode = AiNodeLookUpByName(layerName.GetAsciiString());
+            previousLayerNode = AiNodeLookUpByName(NULL, layerName.GetAsciiString());
          }
       }
    }

@@ -79,14 +79,19 @@ public:
 
    CString m_output_driver_color_space;
 
+   bool    m_output_png_skip_alpha;
+   bool    m_output_png_unpremult_alpha;
+
    bool    m_dither;
-   bool    m_unpremult_alpha;
+   bool    m_output_tiff_skip_alpha;
+   bool    m_output_tiff_unpremult_alpha;
    bool    m_output_tiff_tiled;
    CString m_output_tiff_compression;
    bool    m_output_tiff_append;
    bool    m_output_exr_tiled;
    CString m_output_exr_compression;
    bool    m_output_exr_preserve_layer_name;
+   bool    m_output_exr_multipart;
    bool    m_output_exr_autocrop;
    bool    m_output_exr_append;
 
@@ -118,18 +123,27 @@ public:
    int     m_AA_samples_max;
    float   m_AA_adaptive_threshold;
 
-   float   m_indirect_specular_blur;
-   bool    m_lock_sampling_noise;
-   bool    m_sss_use_autobump;
+   // lights
+   bool    m_use_global_light_sampling;
+   int     m_light_samples;
 
+   // clamping
    bool    m_use_sample_clamp;
    bool    m_use_sample_clamp_AOVs;
    float   m_AA_sample_clamp;
    float   m_indirect_sample_clamp;
+
+   // filtering
    CString m_output_filter;
    float   m_output_filter_width;
    bool    m_filter_color_AOVs;
    bool    m_filter_numeric_AOVs;
+
+   // advanced
+   bool    m_lock_sampling_noise;
+   bool    m_dielectric_priorities;
+   float   m_indirect_specular_blur;
+
 
    // motion blur
    bool    m_enable_motion_blur;
@@ -166,6 +180,7 @@ public:
    bool  m_texture_accept_untiled;
    bool  m_enable_autotile;
    int   m_texture_autotile;
+   bool  m_texture_auto_generate_tx;
    bool  m_use_existing_tx_files;
    int   m_texture_max_memory_MB;
    int   m_texture_max_open_files;
@@ -210,6 +225,7 @@ public:
    bool         m_ignore_user_options;
    bool         m_ignore_matte;
    bool         m_ignore_operators;
+   bool         m_ignore_imagers;
 
    // ass archive
    CString m_output_file_tagdir_ass;
@@ -229,8 +245,6 @@ public:
    bool m_output_operators;
 
    // denoiser
-   bool m_use_optix_on_main;
-   bool m_only_show_denoise;
    bool m_output_denoising_aovs;
 
    //////////////////////////////////////
@@ -278,14 +292,19 @@ public:
 
       m_output_driver_color_space(L"auto"),
 
+      m_output_png_skip_alpha(true),
+      m_output_png_unpremult_alpha(true),
+
       m_dither(true),
-      m_unpremult_alpha(false),
+      m_output_tiff_skip_alpha(false),
+      m_output_tiff_unpremult_alpha(false),
       m_output_tiff_tiled(true),
       m_output_tiff_compression(L"lzw"),
       m_output_tiff_append(false),
       m_output_exr_tiled(true),
       m_output_exr_compression(L"zip"),
       m_output_exr_preserve_layer_name(false),
+      m_output_exr_multipart(false),
       m_output_exr_autocrop(false),
       m_output_exr_append(false),
       
@@ -311,18 +330,26 @@ public:
       m_AA_samples_max(8),
       m_AA_adaptive_threshold(0.05f),
 
-      m_indirect_specular_blur(1.0f),
+      // lights
+      m_use_global_light_sampling(false),
+      m_light_samples(4),
 
-      m_lock_sampling_noise(false),
-      m_sss_use_autobump(false),
+      // clamping
       m_use_sample_clamp(false),
       m_use_sample_clamp_AOVs(false),
       m_AA_sample_clamp(10.0f),
       m_indirect_sample_clamp(10.0f),
+
+      // filtering
       m_output_filter(L"gaussian"),
       m_output_filter_width(2.0),
       m_filter_color_AOVs(true),
       m_filter_numeric_AOVs(true), // not the default
+
+      // advanced
+      m_lock_sampling_noise(false),
+      m_dielectric_priorities(true),
+      m_indirect_specular_blur(1.0f),
 
       // motion blur
       m_enable_motion_blur(false),
@@ -360,8 +387,9 @@ public:
       m_texture_accept_untiled(true),
       m_enable_autotile(false),
       m_texture_autotile(64),
-      m_use_existing_tx_files(false),
-      m_texture_max_memory_MB(2048),
+      m_texture_auto_generate_tx(true),
+      m_use_existing_tx_files(true),
+      m_texture_max_memory_MB(4096),
       m_texture_max_open_files(100),
 
       // color managers
@@ -403,6 +431,7 @@ public:
       m_ignore_user_options(false),
       m_ignore_matte(false),
       m_ignore_operators(false),
+      m_ignore_imagers(false),
 
       // ass archive
       m_output_file_tagdir_ass(L""), // this to be reviewed, see CommonRenderOptions_Define
@@ -422,8 +451,6 @@ public:
       m_output_operators(false),
 
       // denoiser
-      m_use_optix_on_main(false),
-      m_only_show_denoise(true),
       m_output_denoising_aovs(false)
 
    {
@@ -466,8 +493,6 @@ void SubdivisionTabLogic(CustomProperty &in_cp);
 void DiagnosticsTabLogic(CustomProperty &in_cp);
 // Logic for the ass archives tab
 void AssOutputTabLogic(CustomProperty &in_cp);
-// Logic for the denoiser tab
-void DenoiserTabLogic(CustomProperty &in_cp);
 
 // Reset the default values of all the parameters
 void ResetToDefault(CustomProperty &in_cp, PPGEventContext &in_ctxt);

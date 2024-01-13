@@ -123,7 +123,7 @@ vars.AddVariables(
 
       PathVariable('XSISDK_ROOT', 'Where to find XSI libraries', get_default_path('XSISDK_ROOT', '.')),
       PathVariable('ARNOLD_HOME', 'Base Arnold dir', '.'),
-      PathVariable('VS_HOME', 'Visual Studio 11 home', '.'),
+      PathVariable('VS_HOME', 'Visual Studio home', '.'),
       PathVariable('WINDOWS_KIT', 'Windows Kit home', '.'),
 
       PathVariable('TARGET_WORKGROUP_PATH', 'Path used for installation of plugins', '.', PathVariable.PathIsDirCreate),
@@ -137,7 +137,7 @@ vars.AddVariables(
 
         
 if system.os() == 'windows':
-   vars.Add(EnumVariable('MSVC_VERSION', 'Version of MS Visual Studio to use', '9.0', allowed_values=('8.0', '8.0Exp', '9.0', '9.0Exp', '10.0', '11.0')))
+   vars.Add(EnumVariable('MSVC_VERSION', 'Version of MS Visual Studio to use', '14.0', allowed_values=('8.0', '8.0Exp', '9.0', '9.0Exp', '10.0', '11.0', '14.0')))
 
 env = Environment(variables = vars)
 
@@ -146,6 +146,7 @@ system.set_target_arch(env['TARGET_ARCH'])
 ARNOLD_HOME = env['ARNOLD_HOME']
 ARNOLD_API_INCLUDES = os.path.join(ARNOLD_HOME, 'include')
 ARNOLD_BINARIES = os.path.join(ARNOLD_HOME, 'bin')
+ARNOLD_OCIO = os.path.join(ARNOLD_HOME, 'ocio')
 ARNOLD_PLUGINS = os.path.join(ARNOLD_HOME, 'plugins')
 if system.os() == 'windows':
   ARNOLD_API_LIB = os.path.join(ARNOLD_HOME, 'lib')
@@ -156,7 +157,7 @@ VS_HOME = env['VS_HOME']
 WINDOWS_KIT  = env['WINDOWS_KIT']
 
 # Find XSISDK_VERSION by parsing xsi_version.h in the SDK
-XSISDK_VERSION = get_softimage_version(env['XSISDK_ROOT']);
+XSISDK_VERSION = get_softimage_version(env['XSISDK_ROOT'])
 
 PACKAGE_SUFFIX = env.subst(env['PACKAGE_SUFFIX'])
 
@@ -302,7 +303,7 @@ if system.os() == 'windows':
                                        duplicate = 0,
                                        exports   = 'env')
    
-   [SITOA_SHADERS, SITOA_SHADERS_PRJ] = env.SConscript(os.path.join('shaders', 'src', 'SConscript'),
+   [SITOA_SHADERS, SITOA_SHADERS_PRJ, SITOA_OSL_SHADERS] = env.SConscript(os.path.join('shaders', 'src', 'SConscript'),
                                                        variant_dir = os.path.join(BUILD_BASE_DIR, 'shaders'),
                                                        duplicate = 0,
                                                        exports   = 'env')
@@ -337,7 +338,7 @@ else:
                           duplicate = 0,
                           exports   = 'env')
 
-   SITOA_SHADERS = env.SConscript(os.path.join('shaders', 'src', 'SConscript'),
+   [SITOA_SHADERS, SITOA_OSL_SHADERS] = env.SConscript(os.path.join('shaders', 'src', 'SConscript'),
                                   variant_dir = os.path.join(BUILD_BASE_DIR, 'shaders'),
                                   duplicate = 0,
                                   exports   = 'env')
@@ -396,15 +397,23 @@ else:
 PACKAGE_FILES = [
 [os.path.join(plugin_binary_path, 'sitoa', DLLS),                          os.path.join(addon_path, bin_path)],
 [os.path.join(plugin_binary_path, 'shaders', DLLS),                        os.path.join(addon_path, bin_path)],
+[os.path.join(plugin_binary_path, 'shaders', 'osl', '*.oso'),              os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, 'ADPClientService%s' % get_executable_extension()), os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, 'AdpSDKUtil%s' % get_executable_extension()), os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, 'ArnoldLicenseManager%s' % get_executable_extension()), os.path.join(addon_path, bin_path)],
 [os.path.join(ARNOLD_BINARIES, 'kick%s' % get_executable_extension()),     os.path.join(addon_path, bin_path)],
 [os.path.join(ARNOLD_BINARIES, 'maketx%s' % get_executable_extension()),   os.path.join(addon_path, bin_path)],
 [os.path.join(ARNOLD_BINARIES, 'noice%s' % get_executable_extension()),    os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, 'oiiotool%s' % get_executable_extension()), os.path.join(addon_path, bin_path)],
 [os.path.join(ARNOLD_BINARIES, 'oslc%s' % get_executable_extension()),     os.path.join(addon_path, bin_path)],
 [os.path.join(ARNOLD_BINARIES, 'oslinfo%s' % get_executable_extension()),  os.path.join(addon_path, bin_path)],
 [os.path.join(ARNOLD_BINARIES, '*%s' % get_library_extension()),           os.path.join(addon_path, bin_path)],
 [os.path.join(ARNOLD_BINARIES, '*%s.*' % get_library_extension()),         os.path.join(addon_path, bin_path)],
 [os.path.join(ARNOLD_BINARIES, '*.pit'),                                   os.path.join(addon_path, bin_path)],
-[os.path.join(ARNOLD_PLUGINS, '*'),                                        os.path.join(addon_path, bin_path, '..', 'plugins')],
+[os.path.join(ARNOLD_BINARIES, '*.png'),                                   os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, 'senddmp'),                                 os.path.join(addon_path, bin_path, 'senddmp')],
+[ARNOLD_OCIO,                                                              os.path.join(addon_path, bin_path, '..', 'ocio')],
+[ARNOLD_PLUGINS,                                                           os.path.join(addon_path, bin_path, '..', 'plugins')],
 [os.path.join('plugins', 'helpers', '*.js'),                               os.path.join(addon_path, plugins_path)],
 [os.path.join('plugins', 'helpers', '*.py'),                               os.path.join(addon_path, plugins_path)],
 [os.path.join('plugins', 'helpers', 'Pictures', '*.bmp'),                  os.path.join(addon_path, pictures_path)],
@@ -464,6 +473,15 @@ DEPLOY = env.PackageDeploy('deploy', package_name)
 ## PATCH ADLM
 ################################
 
+def find_adclmhub(search_path, pattern):
+   adclmhub_name = [f for f in os.listdir(search_path) if f.startswith(pattern)]
+   if adclmhub_name:
+      adclmhub_name = adclmhub_name[0]
+   else:
+      adclmhub_name = ''
+      print 'No AdClmHub file was found!'
+   return adclmhub_name
+
 def make_patch_adlm(target, source, env):
    if env['PATCH_ADLM']:
       wg_bin_path = os.path.normpath(os.path.join(env['TARGET_WORKGROUP_PATH'], bin_path))
@@ -471,16 +489,37 @@ def make_patch_adlm(target, source, env):
 
 def patch_adlm(wg_bin_path, env):
    new_adlmint_last_char = '2'  # ONLY ONE CHARACTER
+   size = 0
+
    if system.os() == 'windows':
-      adclmhub_name = 'AdClmHub_1.dll'
+      adclmhub_name = find_adclmhub(wg_bin_path, 'AdClmHub_')
+      if adclmhub_name == 'AdClmHub_3.1.1.dll':
+         size = 498696
+         seek_pos = 0x57F6C
+      elif adclmhub_name == 'AdClmHub_2.0.0.dll':
+         size = 524128
+         seek_pos = 367692
+      elif adclmhub_name == 'AdClmHub_1.1.1.dll':
+         size = 384872
+         seek_pos = 267436
+      elif adclmhub_name == 'AdClmHub_1.dll':
+         size = 383280
+         seek_pos = 266236
+      else:
+         print 'This version of AdClmHub is not supported: {}'.format(adclmhub_name)
       adlmint_name = 'adlmint.dll'
-      size = 383280
-      seek_pos = 266236
+      
    else:
-      adclmhub_name = 'libAdClmHub.so'
+      adclmhub_name = find_adclmhub(wg_bin_path, 'libAdClmHub')
+      if adclmhub_name == 'libAdClmHub.so.1':
+         size = 1377518
+         seek_pos = 500890
+      elif adclmhub_name == 'libAdClmHub.so':
+         size = 1853576
+         seek_pos = 779034
+      else:
+         print 'This version of libAdClmHub is not supported: {}'.format(adclmhub_name)
       adlmint_name = 'libadlmint.so'
-      size = 1853576
-      seek_pos = 779034
 
    new_adlmint_name = os.path.splitext(adlmint_name)[0][:-1] + new_adlmint_last_char + get_library_extension()
 
@@ -494,16 +533,18 @@ def patch_adlm(wg_bin_path, env):
       # check file size as a way to see if patching is needed
       if os.path.getsize(adclmhub_path) == size:
          need_to_patch = True
+      else:
+         print 'Size of {} is not correct. Skipping patching.'.format(adclmhub_name)
       
    if not os.path.isfile(adlmint_path):
       need_to_patch = False
 
    if need_to_patch:
-      # patch AdClmHub_1
+      # patch AdClmHub
       with open(adclmhub_path, 'r+b') as f:
          f.seek(seek_pos)
          letter = f.read(1)
-         if letter == 't':
+         if letter != new_adlmint_last_char:
             print 'Patching {} ...'.format(adclmhub_name)
             f.seek(seek_pos)
             f.write(new_adlmint_last_char)
@@ -518,7 +559,7 @@ def patch_adlm(wg_bin_path, env):
       print 'Renaming {} to {} ...'.format(adlmint_name, new_adlmint_name)
       os.rename(adlmint_path, new_adlmint_path)
 
-      print 'done patching ADLM.'
+      print 'Done patching ADLM.'
 
    else:
       print 'No need to patch.'
@@ -531,9 +572,11 @@ PATCH = env.Patch('patch', SITOA)
 ################################
 
 env.Install(os.path.join(env['TARGET_WORKGROUP_PATH'], bin_path), [str(SITOA[0]),
-                                                                   str(SITOA_SHADERS[0])])
+                                                                   str(SITOA_SHADERS[0]),
+                                                                   SITOA_OSL_SHADERS])
 
 env.Install(os.path.join(env['TARGET_WORKGROUP_PATH'], bin_path), [glob.glob(os.path.join(ARNOLD_BINARIES, '*'))])
+env.Install(os.path.join(env['TARGET_WORKGROUP_PATH'], bin_path, '..', 'ocio'), [glob.glob(os.path.join(ARNOLD_OCIO, '*'))])
 env.Install(os.path.join(env['TARGET_WORKGROUP_PATH'], bin_path, '..', 'plugins'), [glob.glob(os.path.join(ARNOLD_PLUGINS, '*'))])
 
 # Copying Scripting Plugins 
@@ -570,6 +613,7 @@ top_level_alias(env, 'testsuite', TESTSUITE)
 env.AlwaysBuild(PACKAGE)
 env.AlwaysBuild('install')
 
+env.Depends(SITOA_SHADERS, SITOA_OSL_SHADERS)
 env.Depends(PACKAGE, SITOA)
 env.Depends(PACKAGE, SITOA_SHADERS)
 env.Depends(DEPLOY, PACKAGE)

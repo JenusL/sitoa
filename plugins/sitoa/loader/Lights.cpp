@@ -454,10 +454,15 @@ CStatus LoadLights(double in_frame, CRefArray &in_selectedObjs, bool in_selectio
          continue;
       
       Light xsiLight(lightsArray[i]);
-      status = LoadSingleLight(xsiLight, in_frame);
-      if (status == CStatus::Abort)
-         return status;
-      // #1307 : do not break in case of CStatus::Fail, just go to the next light
+
+      // Github #86 - Only load light if it's visible in rendering
+      if (ParAcc_GetValue(Property(xsiLight.GetProperties().GetItem(L"Visibility")), L"rendvis", in_frame))
+      {
+         status = LoadSingleLight(xsiLight, in_frame);
+         if (status == CStatus::Abort)
+            return status;
+         // #1307 : do not break in case of CStatus::Fail, just go to the next light
+      }
    }
 
    // GetRenderInstance()->LightMap().Log();
@@ -485,7 +490,7 @@ CStatus LoadSingleLight(const Light &in_xsiLight, double in_frame, bool in_postL
    if (!GetArnoldLightNodeName(GetShaderNameFromProgId(xsiShader.GetProgID()), arnoldNodeName))
       return CStatus::Fail; // The light is not supported by arnold
 
-   AtNode* lightNode = AiNode(arnoldNodeName.GetAsciiString());
+   AtNode* lightNode = AiNode(NULL, arnoldNodeName.GetAsciiString());
    GetRenderInstance()->NodeMap().PushExportedNode(in_xsiLight, in_frame, lightNode);
    // set the name only if this is not a postloaded scene, meaning it's created because
    // a time shifted ice instance of this light
@@ -622,7 +627,7 @@ CStatus LoadLightFilters(AtNode *in_lightNode, const Light &in_xsiLight, const S
       CString filterType = GetShaderNameFromProgId(filterShader.GetProgID());
       CString filterName = CStringUtilities().MakeSItoAName(filterShader, in_frame, L"", false);
 
-      AtNode* filterNode = AiNodeLookUpByName(filterName.GetAsciiString());
+      AtNode* filterNode = AiNodeLookUpByName(NULL, filterName.GetAsciiString());
       if (!filterNode)
       {
          filterNode = LoadShader(filterShader, in_frame, CRef(), RECURSE_FALSE);

@@ -165,8 +165,8 @@ void CShaderDefParameter::Define(ShaderParamDefContainer &in_paramDef, const CSt
 {
    ShaderParamDefOptions defOptions = ShaderParamDefOptions(Application().GetFactory().CreateShaderParamDefOptions());
 
-   bool texturable = ! (m_type == AI_TYPE_STRING || m_type == AI_TYPE_ENUM);
-   bool animatable = ! (m_type == AI_TYPE_STRING || m_type == AI_TYPE_NODE || m_type == AI_TYPE_MATRIX || 
+   bool texturable = true;
+   bool animatable = ! (m_type == AI_TYPE_STRING || m_type == AI_TYPE_NODE || 
                         m_type == AI_TYPE_ENUM || m_type == AI_TYPE_CLOSURE);
    bool inspectable = m_has_inspectable ? m_inspectable : true;
 
@@ -214,12 +214,28 @@ void CShaderDefParameter::Define(ShaderParamDefContainer &in_paramDef, const CSt
          break;
    }
 
+   // special case for imagers where we want to set a custom dafult value for layer_selection
+   if (CStringUtilities().StartsWith(in_shader_name, L"imager_") && m_name == L"layer_selection")
+      defOptions.SetDefaultValue(L"RGBA");
+
    if (m_has_min && m_has_max)
       defOptions.SetHardLimit((CValue)m_min, (CValue)m_max);
    else if (m_has_min)
       defOptions.SetHardLimit((CValue)m_min, (CValue)1000000);
    else if (m_has_max)
       defOptions.SetHardLimit((CValue)-1000000, (CValue)m_max);
+
+   // copy min and max to softmin and softmax if one of them don't exist.
+   if (m_has_softmin && !m_has_softmax && m_has_max)
+   {
+      m_has_softmax = true;
+      m_softmax = m_max;
+   }
+   if (m_has_softmax && !m_has_softmin && m_has_min)
+   {
+      m_has_softmin = true;
+      m_softmin = m_min;
+   }
 
    if (m_has_softmin && m_has_softmax)
       defOptions.SetSoftLimit((CValue)m_softmin, (CValue)m_softmax);
@@ -260,6 +276,14 @@ void CShaderDefParameter::Define(ShaderParamDefContainer &in_paramDef, const CSt
             GetMessageQueue()->LogMsg(L"[sitoa] " + in_shader_name + L"." + m_name + " has unknown node type override: " + m_node_type, siWarningMsg);
       }
    }
+   // override for set_transform operator
+   // the matrix is not an array, but can instead take motion samples
+   else if (in_shader_name == L"set_transform" && m_name == L"matrix")
+   {
+      paramIsArray = false;
+      m_type = AI_TYPE_MATRIX;
+   }
+
    else if (paramType == AI_TYPE_CLOSURE)
       customNodeType = L"closure";
 
@@ -318,6 +342,9 @@ void CShaderDefParameter::Define(ShaderParamDefContainer &in_paramDef, const CSt
          case AI_TYPE_MATRIX:
          {
             AtMatrix* m = m_default.pMTX();
+            if (in_shader_name == L"set_transform" && m_name == L"matrix")
+                  m = new AtMatrix(AiArrayGetMtx(m_default.ARRAY(), 0));
+            
             container.GetParamDefByName(L"_00").SetDefaultValue((*m)[0][0]);
             container.GetParamDefByName(L"_01").SetDefaultValue((*m)[0][1]);
             container.GetParamDefByName(L"_02").SetDefaultValue((*m)[0][2]);
@@ -374,7 +401,7 @@ void CShaderDefParameter::Layout(PPGLayout &in_layout)
       label = CStringUtilities().PrettifyParameterName(m_name);
 
    // if a string parameter is called "filename", it's reasonable to provide a file browser widget
-   if (m_type == AI_TYPE_STRING && m_name == ATSTRING::filename)
+   if (m_type == AI_TYPE_STRING && (m_name == ATSTRING::filename || m_name == ATSTRING::lut_filename))
    {
       item = in_layout.AddItem(m_name, label, siControlFilePath);
       item.PutAttribute(siUIOpenFile, true);
@@ -452,6 +479,9 @@ CShaderDefShader::CShaderDefShader(AtNodeEntry* in_node_entry, const bool in_clo
    int entry_type = AiNodeEntryGetType(m_node_entry);
    m_is_camera_node = entry_type == AI_NODE_CAMERA;
    m_is_operator_node = entry_type == AI_NODE_OPERATOR;
+   m_is_imager_node = CStringUtilities().StartsWith(m_name, L"imager_");
+
+   m_num_named_outputs = AiNodeEntryGetNumOutputs(m_node_entry);
 
    if (in_clone_vector_map)
       m_type = AI_TYPE_FLOAT;
@@ -559,6 +589,13 @@ CString CShaderDefShader::Define(const bool in_clone_vector_map)
          category = category + L"/" + m_category;
    }
 
+   if (m_is_imager_node)
+   {
+      category = L"Arnold/Imagers";
+      if (m_has_category)
+         category = category + L"/" + m_category;
+   }
+
    m_sd.PutCategory(category);
 
    if (m_has_deprecated && m_deprecated)
@@ -576,19 +613,45 @@ CString CShaderDefShader::Define(const bool in_clone_vector_map)
       it->Define(inParamDef, m_name);
    }
 
+   // create all the outputs
    ShaderParamDefContainer outParamDef = m_sd.GetOutputParamDefs();
    ShaderParamDefOptions outOpts = ShaderParamDefOptions(factory.CreateShaderParamDefOptions());
 
-   if (m_is_passthrough_closure) // hack the closure output for the closure connector to color
-      outParamDef.AddParamDef("out", siShaderDataTypeColor4, outOpts);
-   else if (m_is_operator_node)
-      outParamDef.AddParamDef("out", siShaderDataTypeReference, outOpts);
+   siShaderParameterDataType outParamType;
+
+   // handle nodes with named outputs
+   if (m_num_named_outputs)
+   {
+      for (LONG i=0; i<m_num_named_outputs; i++)
+      {
+         const AtParamEntry *outParamEntry = AiNodeEntryGetOutput(m_node_entry, i);
+         CString outName = AiParamGetName(outParamEntry);
+         int out_type = AiParamGetType(outParamEntry);
+         outParamType = GetParamSdType(out_type);
+
+         if (out_type == AI_TYPE_CLOSURE)
+            outParamDef.AddParamDef(outName, L"closure", outOpts);
+         else
+            outParamDef.AddParamDef(outName, outParamType, outOpts);
+      }
+   }
+
+   // handle nodes without named outputs
    else
    {
-      if (m_type == AI_TYPE_CLOSURE)
+      if ((m_type == AI_TYPE_CLOSURE) && !m_is_passthrough_closure)
          outParamDef.AddParamDef("out", L"closure", outOpts);
       else
-         outParamDef.AddParamDef("out", GetParamSdType(m_type), outOpts);
+      {
+         
+         if (m_is_passthrough_closure) // hack the closure output for the closure connector to color
+            outParamType = siShaderDataTypeColor4;
+         else if (m_is_operator_node || m_is_imager_node)
+            outParamType = siShaderDataTypeReference;
+         else
+            outParamType = GetParamSdType(m_type);
+         outParamDef.AddParamDef("out", outParamType, outOpts);
+      }
    }
 
    Layout();
@@ -783,6 +846,11 @@ void CShaderDefSet::Load(const CString &in_plugin_origin_path)
    metadata_exists = AiMetaDataLoadFile(metadata_path.GetAsciiString());
    if (!metadata_exists)
       GetMessageQueue()->LogMsg(L"[sitoa] Missing operator metadata file " + metadata_path, siWarningMsg);
+   // load the imager metadata file
+   metadata_path = CUtils::BuildPath(in_plugin_origin_path, L"arnold_imagers.mtd");
+   metadata_exists = AiMetaDataLoadFile(metadata_path.GetAsciiString());
+   if (!metadata_exists)
+      GetMessageQueue()->LogMsg(L"[sitoa] Missing imager metadata file " + metadata_path, siWarningMsg);
 
    // iterate the nodes
    AtNodeEntryIterator* node_entry_it = AiUniverseGetNodeEntryIterator(AI_NODE_SHADER | AI_NODE_CAMERA | AI_NODE_OPERATOR);
@@ -806,9 +874,12 @@ void CShaderDefSet::Load(const CString &in_plugin_origin_path)
          continue;
 
       // skip the shaders shipping in sitoa_shaders, that implement the factory Softimage shaders 
-      if (shader_def.m_so_name == L"sitoa_shaders.dll" || shader_def.m_so_name == L"sitoa_shaders.so")
+      if (shader_def.m_so_name == L"sitoa_shaders.dll" || shader_def.m_so_name == L"sitoa_shaders.so" ||
+         (CStringUtilities().StartsWith(shader_def.m_so_name, "sib_") && CStringUtilities().EndsWith(shader_def.m_so_name, ".oso")))
+      {
          if (!shader_def.m_is_passthrough_closure) // only exception is the closure connector
             continue;
+      }
       // skip the core camera nodes, already exposed by the camera options property
       if (shader_def.m_so_name == L"core" && shader_def.m_is_camera_node)
           continue;
@@ -835,6 +906,25 @@ void CShaderDefSet::Load(const CString &in_plugin_origin_path)
       }
    }
 
+   AiNodeEntryIteratorDestroy(node_entry_it);
+
+   // imagers are of type AI_NODE_DRIVER so we need to check the name of the driver to see if its an imager
+   node_entry_it = AiUniverseGetNodeEntryIterator(AI_NODE_DRIVER);
+   while (!AiNodeEntryIteratorFinished(node_entry_it))
+   {
+      AtNodeEntry* node_entry = AiNodeEntryIteratorGetNext(node_entry_it);
+      AtString node_entry_name(AiNodeEntryGetName(node_entry));
+      CString node_name(node_entry_name.c_str());
+
+      if (!CStringUtilities().StartsWith(node_name, L"imager_"))
+         continue;
+
+      CShaderDefShader shader_def(node_entry); // collect everything
+      progId = shader_def.Define(); // build parameters and the UI
+
+      if (!progId.IsEmpty()) // enter in the list only the shaders whose definition was actually created
+         m_prog_ids.insert(shader_def.m_so_name + L" " + progId);
+   }
    AiNodeEntryIteratorDestroy(node_entry_it);
 
    node_entry_it = AiUniverseGetNodeEntryIterator(AI_NODE_LIGHT);

@@ -36,7 +36,7 @@ enum TransformType
    FROM_WORLD,
    FROM_CAMERA,
    FROM_OBJECT,
-   INPUT_TRANSFORM
+   _INPUT_TRANSFORM
 };
 
 node_parameters
@@ -86,7 +86,7 @@ shader_evaluate
       case TO_WORLD:
          break;
       case TO_CAMERA:
-         AiWorldToCameraMatrix(AiUniverseGetCamera(), sg->time, matrix);  
+         AiWorldToCameraMatrix(AiUniverseGetCamera(NULL), sg->time, matrix);  
          break;
       case TO_OBJECT:
          matrix = sg->Minv;
@@ -94,12 +94,12 @@ shader_evaluate
       case FROM_WORLD:
          break;
       case FROM_CAMERA:
-         AiCameraToWorldMatrix(AiUniverseGetCamera(), sg->time, matrix);
+         AiCameraToWorldMatrix(AiUniverseGetCamera(NULL), sg->time, matrix);
          break;
       case FROM_OBJECT:
          matrix = sg->M;
          break;
-      case INPUT_TRANSFORM:
+      case _INPUT_TRANSFORM:
          matrix = *AiShaderEvalParamMtx(p_transform_input);
          break;
    }
@@ -113,7 +113,7 @@ shader_evaluate
          vector_input = AiM4VectorByMatrixMult(matrix, vector_input);
          break;
       case eNORMAL:
-         if (data->transform != INPUT_TRANSFORM)
+         if (data->transform != _INPUT_TRANSFORM)
          {
             AtMatrix inverse_transpose = AiM4Invert(matrix);
             vector_input = AiM4VectorByMatrixTMult(inverse_transpose, vector_input);            

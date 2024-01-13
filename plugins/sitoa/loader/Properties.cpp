@@ -257,7 +257,7 @@ void LoadArnoldParameters(AtNode* in_node, CParameterRefArray &in_paramsArray, d
    LONG nbParameters = in_paramsArray.GetCount();
 
    // in_filterParameters by now is always false except in the case of ice strands
-   bool isPoints(false), isPointsDisk(false), isMesh(false);
+   bool isPoints(false), isPointsDisk(false), isThick(false), isMesh(false);
    bool isCurve = AiNodeIs(in_node, ATSTRING::curves); // is it a curves node ?
 
    if (in_filterParameters)
@@ -270,6 +270,12 @@ void LoadArnoldParameters(AtNode* in_node, CParameterRefArray &in_paramsArray, d
       {
          const char* mode = AiNodeGetStr(in_node, "mode");
          isPointsDisk = strcmp(mode, "disk") == 0; // is it a points node in disk node ?
+      }
+
+      if (isCurve)
+      {
+         const char* mode = AiNodeGetStr(in_node, "mode");
+         isThick = strcmp(mode, "thick") == 0;
       }
    }
 
@@ -304,9 +310,9 @@ void LoadArnoldParameters(AtNode* in_node, CParameterRefArray &in_paramsArray, d
                continue;
          }
 
-         // min_pixel_width is allowed only for curves and disk points
+         // min_pixel_width is allowed only for ribbon curves and disk points
          if (!strcmp(charParamName, "min_pixel_width"))
-            if ((!isCurve) && (!isPointsDisk))
+            if (!(isCurve && !isThick) && !isPointsDisk)
                continue;
 
          // don't export the curve mode parameter if this is not a curve
@@ -368,11 +374,13 @@ void LoadArnoldParameters(AtNode* in_node, CParameterRefArray &in_paramsArray, d
 
       // Skip Autobump Visibility. We handle it later.
       if (!strcmp(charParamName, "autobump_camera") ||
+          !strcmp(charParamName, "autobump_shadow") ||
           !strcmp(charParamName, "autobump_diffuse_reflection") ||
           !strcmp(charParamName, "autobump_specular_reflection") ||
           !strcmp(charParamName, "autobump_diffuse_transmission") ||
           !strcmp(charParamName, "autobump_specular_transmission") ||
-          !strcmp(charParamName, "autobump_volume_scatter"))
+          !strcmp(charParamName, "autobump_volume_scatter") ||
+          !strcmp(charParamName, "autobump_subsurface"))
          continue;
 
       // As XSI Custom Parameter, colors are defined as individual parameters 
@@ -428,18 +436,22 @@ uint8_t GetAutobumpVisibility(CParameterRefArray &in_paramsArray, double in_fram
       autobump_visibility = AI_RAY_UNDEFINED;
 
       bool camera                = (bool)in_paramsArray.GetValue(L"autobump_camera", in_frame);
+      bool shadow                = (bool)in_paramsArray.GetValue(L"autobump_shadow", in_frame);
       bool diffuse_reflection    = (bool)in_paramsArray.GetValue(L"autobump_diffuse_reflection", in_frame);
       bool specular_reflection   = (bool)in_paramsArray.GetValue(L"autobump_specular_reflection", in_frame);
       bool diffuse_transmission  = (bool)in_paramsArray.GetValue(L"autobump_diffuse_transmission", in_frame);
       bool specular_transmission = (bool)in_paramsArray.GetValue(L"autobump_specular_transmission", in_frame);
       bool volume                = (bool)in_paramsArray.GetValue(L"autobump_volume", in_frame);
+      bool subsurface            = (bool)in_paramsArray.GetValue(L"autobump_subsurface", in_frame);
 
       if (camera)                autobump_visibility += AI_RAY_CAMERA;
+      if (shadow)                autobump_visibility += AI_RAY_SHADOW;
       if (diffuse_reflection)    autobump_visibility += AI_RAY_DIFFUSE_REFLECT;
       if (specular_reflection)   autobump_visibility += AI_RAY_SPECULAR_REFLECT;
       if (diffuse_transmission)  autobump_visibility += AI_RAY_DIFFUSE_TRANSMIT;
       if (specular_transmission) autobump_visibility += AI_RAY_SPECULAR_TRANSMIT;
       if (volume)                autobump_visibility += AI_RAY_VOLUME;
+      if (subsurface)            autobump_visibility += AI_RAY_SUBSURFACE;
    }
 
    return autobump_visibility;
@@ -532,7 +544,24 @@ void LoadCameraOptions(const Camera &in_xsiCamera, AtNode* in_node, const Proper
 
    CNodeSetter::SetFloat(in_node, "exposure", (float)ParAcc_GetValue(in_property, L"exposure", in_frame));
 
-   if (cameraType == L"fisheye_camera")
+   if (cameraType == L"persp_camera")
+   {
+      CNodeSetter::SetFloat(in_node, "radial_distortion", (float)ParAcc_GetValue(in_property, L"persp_radial_distortion", in_frame));
+      CString s = ((CString)ParAcc_GetValue(in_property, L"persp_radial_distortion_type", in_frame));
+      CNodeSetter::SetString(in_node, "radial_distortion_type", s.GetAsciiString());
+
+      AtArray* lens_tilt_angles = AiArrayAllocate(1, (uint8_t)nbTransfKeys, AI_TYPE_VECTOR2);
+      for (LONG ikey=0; ikey<nbTransfKeys; ikey++)
+      {
+         double frame = transfKeys[ikey];
+         float lens_tilt_angle_x = (float)ParAcc_GetValue(in_property, L"persp_lens_tilt_angle_x", frame);
+         float lens_tilt_angle_y = (float)ParAcc_GetValue(in_property, L"persp_lens_tilt_angle_y", frame);
+         AtVector2 lens_tilt_angle = AtVector2(lens_tilt_angle_x, lens_tilt_angle_y);
+         AiArraySetVec2(lens_tilt_angles, ikey, AtVector2(lens_tilt_angle_x, lens_tilt_angle_y));
+      }
+      AiNodeSetArray(in_node, "lens_tilt_angle", lens_tilt_angles);
+   }
+   else if (cameraType == L"fisheye_camera")
       CNodeSetter::SetBoolean(in_node, "autocrop", (bool)ParAcc_GetValue(in_property, L"fisheye_autocrop", in_frame));
    else if (cameraType == L"cyl_camera")
    {

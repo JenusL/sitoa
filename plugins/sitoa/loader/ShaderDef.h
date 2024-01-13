@@ -101,7 +101,8 @@ private:
 
    AtNodeEntry* m_node_entry;
    CString m_filename;                         // so/dll full path
-   int     m_type;                             // output type
+   int     m_num_named_outputs;                // number of named outputs
+   int     m_type;                             // main/first output type
    vector <CShaderDefParameter> m_parameters;  // parameters
 
    bool     m_has_desc;
@@ -121,6 +122,7 @@ public:
    bool    m_is_camera_node;                   // is this a custom camera node?
    bool    m_is_passthrough_closure;           // is this the SItoA shader called "closure" ?
    bool    m_is_operator_node;                 // is this an operator node?
+   bool    m_is_imager_node;                   // is this an imager node?
    bool    m_has_skip;
    bool    m_skip;
 
@@ -130,22 +132,24 @@ public:
    {
    }
 
-   CShaderDefShader(const CShaderDefShader &in_arg) : 
-      m_sd(in_arg.m_sd), 
-      m_sd_created(in_arg.m_sd_created), 
+   CShaderDefShader(const CShaderDefShader &in_arg) :
+      m_sd(in_arg.m_sd),
+      m_sd_created(in_arg.m_sd_created),
       m_node_entry(in_arg.m_node_entry),
-      m_filename(in_arg.m_filename), 
-      m_type(in_arg.m_type), 
+      m_filename(in_arg.m_filename),
+      m_num_named_outputs(in_arg.m_num_named_outputs), 
+      m_type(in_arg.m_type),
       m_parameters(in_arg.m_parameters),
       m_has_desc(in_arg.m_has_desc), m_desc(in_arg.m_desc),
       m_has_category(in_arg.m_has_category), m_category(in_arg.m_category),
       m_has_order(in_arg.m_has_order), m_order(in_arg.m_order),
       m_has_deprecated(in_arg.m_has_deprecated), m_deprecated(in_arg.m_deprecated),
       m_name(in_arg.m_name),
-      m_so_name(in_arg.m_so_name), 
-      m_is_camera_node(in_arg.m_is_camera_node), 
+      m_so_name(in_arg.m_so_name),
+      m_is_camera_node(in_arg.m_is_camera_node),
       m_is_passthrough_closure(in_arg.m_is_passthrough_closure),
       m_is_operator_node(in_arg.m_is_operator_node),
+      m_is_imager_node(in_arg.m_is_imager_node),
       m_has_skip(in_arg.m_has_skip), m_skip(in_arg.m_skip)
    {
    }

@@ -12,6 +12,7 @@ See the License for the specific language governing permissions and limitations 
 #include "common/Tools.h"
 #include "loader/Cameras.h"
 #include "loader/Hairs.h"
+#include "loader/Imagers.h"
 #include "loader/Instances.h"
 #include "loader/Loader.h"
 #include "loader/Options.h"
@@ -287,6 +288,20 @@ CStatus LoadScene(const Property &in_arnoldOptions, const CString& in_renderType
          }
       }
 
+      //////////// Imagers ////////////
+      if (!in_createStandIn)
+      {
+         AiMsgDebug("[sitoa] Loading Imagers");
+         
+         status = LoadImagers(iframe);
+
+         if (progressBar.IsCancelPressed() || status == CStatus::Abort)
+         {
+            AbortFrameLoadScene();
+            break;
+         }
+      }
+
       //////////// Pass shaders //////////// 
       if (!in_createStandIn && output_shaders == AI_NODE_SHADER)
       {
@@ -371,7 +386,7 @@ CStatus LoadScene(const Property &in_arnoldOptions, const CString& in_renderType
       {
          // rebuild the full search path, (re)joining together the paths. The non existing are excluded
          CPathString translatedPluginsSearchPath = GetRenderInstance()->GetPluginsSearchPath().Translate();
-         CNodeSetter::SetString(AiUniverseGetOptions(), "plugin_searchpath", translatedPluginsSearchPath.GetAsciiString());
+         CNodeSetter::SetString(AiUniverseGetOptions(NULL), "plugin_searchpath", translatedPluginsSearchPath.GetAsciiString());
       }
 
       loadEnd = clock(); // time for statistics
@@ -398,7 +413,8 @@ CStatus LoadScene(const Property &in_arnoldOptions, const CString& in_renderType
 
          AiMsgDebug("[sitoa] Writing ASS file");
 
-         AiASSWrite(assOutputName.GetAsciiString(), 
+         AiASSWrite(NULL,
+                    assOutputName.GetAsciiString(), 
                     output_cameras + output_drivers_filters + output_lights + output_options + output_geometry + output_shaders + output_operators, 
                     GetRenderOptions()->m_open_procs,
                     GetRenderOptions()->m_binary_ass
