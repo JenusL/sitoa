@@ -93,6 +93,7 @@ function XSILoadPlugin( in_reg )
    in_reg.RegisterShader("noise", 1, 0);
    in_reg.RegisterShader("normal_map", 1, 0);
    in_reg.RegisterShader("normalize", 1, 0);
+   in_reg.RegisterShader("openpbr_surface", 1, 0);
    in_reg.RegisterShader("osl", 1, 0);
    in_reg.RegisterShader("passthrough", 1, 0);
    in_reg.RegisterShader("physical_sky", 1, 0);
@@ -319,6 +320,8 @@ function Arnold_normal_map_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_normal_map_1_0_Define(in_ctxt) { return true; }
 function Arnold_normalize_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_normalize_1_0_Define(in_ctxt) { return true; }
+function Arnold_openpbr_surface_1_0_DefineInfo(in_ctxt) { return true; }
+function Arnold_openpbr_surface_1_0_Define(in_ctxt) { return true; }
 function Arnold_osl_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_osl_1_0_Define(in_ctxt) { return true; }
 function Arnold_passthrough_1_0_DefineInfo(in_ctxt) { return true; }
