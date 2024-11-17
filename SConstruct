@@ -37,7 +37,7 @@ def make_package(target, source, env):
          # If the first element is a file or wildcard, create the target dir and copy files separately
          if not os.path.exists(target_dir):
             os.makedirs(target_dir)
-         file_list = glob.glob(file_spec)
+         file_list = [f for f in glob.glob(file_spec) if os.path.splitext(os.path.basename(f))[0] not in BLACKLIST]
       
          # Optionally rename the destination file (only for single files)
          if (len(file_list) == 1) and (len(t) == 3):
@@ -425,6 +425,11 @@ PACKAGE_FILES = [
 [os.path.join(ARNOLD_HOME, 'license', 'pit', '*'),                         os.path.join(addon_path, pit_path)]
 ]
 
+BLACKLIST = [
+   "aiOpenImageDenoise_device_hip",
+   "aiOpenImageDenoise_device_sycl",
+]
+
 import ftplib
 
 def deploy(target, source, env):
@@ -575,7 +580,7 @@ env.Install(os.path.join(env['TARGET_WORKGROUP_PATH'], bin_path), [str(SITOA[0])
                                                                    str(SITOA_SHADERS[0]),
                                                                    SITOA_OSL_SHADERS])
 
-env.Install(os.path.join(env['TARGET_WORKGROUP_PATH'], bin_path), [glob.glob(os.path.join(ARNOLD_BINARIES, '*'))])
+env.Install(os.path.join(env['TARGET_WORKGROUP_PATH'], bin_path), [f for f in glob.glob(os.path.join(ARNOLD_BINARIES, '*')) if os.path.splitext(os.path.basename(f))[0] not in BLACKLIST])
 env.Install(os.path.join(env['TARGET_WORKGROUP_PATH'], bin_path, '..', 'ocio'), [glob.glob(os.path.join(ARNOLD_OCIO, '*'))])
 env.Install(os.path.join(env['TARGET_WORKGROUP_PATH'], bin_path, '..', 'plugins'), [glob.glob(os.path.join(ARNOLD_PLUGINS, '*'))])
 
