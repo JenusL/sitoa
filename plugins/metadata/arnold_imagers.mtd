@@ -324,6 +324,7 @@ soft.order STRING "enable layer_selection "
 "BeginGroup Filmic filmic_toe_strength filmic_toe_length filmic_shoulder_strength filmic_shoulder_length filmic_shoulder_angle EndGroup "
 "BeginGroup Reinhard reinhard_highlights reinhard_shadows EndGroup "
 "BeginGroup LUT lut_filename lut_working_color_space EndGroup "
+"BeginGroup Heatmap heatmap_min heatmap_max heatmap_input_mode EndGroup "
 
 [attr input]
 soft.inspectable BOOL false
@@ -375,21 +376,22 @@ linkable BOOL false
 
 [attr lut_filename]
 soft.label STRING "LUT Filename"
+linkable BOOL false
 
 [attr lut_working_color_space]
 soft.label STRING "Process Color Space"
-
-[attr preserve_saturation]
 linkable BOOL false
 
-[attr gamma]
-min FLOAT 0
-softmax FLOAT 5
+[attr heatmap_min]
+soft.label STRING "Min"
 linkable BOOL false
 
-[attr mix]
-min FLOAT 0
-max FLOAT 1
+[attr heatmap_max]
+soft.label STRING "Max"
+linkable BOOL false
+
+[attr heatmap_input_mode]
+soft.label STRING "Input Mode"
 linkable BOOL false
 
 ###########################################################################
