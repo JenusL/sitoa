@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and limitations 
 #include <xsi_utils.h>
 
 #define SITOA_MAJOR_VERSION_NUM    7
-#define SITOA_MINOR_VERSION_NUM    2
+#define SITOA_MINOR_VERSION_NUM    3
 #define SITOA_FIX_VERSION          L"5.0"
 
 
