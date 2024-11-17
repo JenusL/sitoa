@@ -23,6 +23,9 @@ soft.inspectable BOOL false
 [attr enable]
 linkable BOOL false
 
+[attr layer_selection]
+linkable BOOL false
+
 [attr main_saturation]
 soft.label STRING "Saturation"
 min FLOAT 0
@@ -145,10 +148,17 @@ linkable BOOL false
 
 ###########################################################################
 [node imager_denoiser_noice]
+
 [attr input]
 soft.inspectable BOOL false
 
 [attr enable]
+linkable BOOL false
+
+[attr layer_selection]
+linkable BOOL false
+
+[attr output_suffix]
 linkable BOOL false
 
 [attr patch_radius]
@@ -168,18 +178,38 @@ linkable BOOL false
 
 ###########################################################################
 [node imager_denoiser_oidn]
+
 [attr input]
 soft.inspectable BOOL false
 
 [attr enable]
 linkable BOOL false
 
+[attr layer_selection]
+linkable BOOL false
+
+[attr output_suffix]
+linkable BOOL false
+
+[attr render_device]
+linkable BOOL false
+
+[attr albedo]
+linkable BOOL false
+
 ###########################################################################
 [node imager_denoiser_optix]
+
 [attr input]
 soft.inspectable BOOL false
 
 [attr enable]
+linkable BOOL false
+
+[attr layer_selection]
+linkable BOOL false
+
+[attr output_suffix]
 linkable BOOL false
 
 [attr blend]
@@ -212,6 +242,9 @@ soft.inspectable BOOL false
 [attr enable]
 linkable BOOL false
 
+[attr layer_selection]
+linkable BOOL false
+
 [attr exposure]
 softmin FLOAT -10
 softmax FLOAT 10
@@ -227,6 +260,9 @@ soft.order STRING "enable layer_selection "
 soft.inspectable BOOL false
 
 [attr enable]
+linkable BOOL false
+
+[attr layer_selection]
 linkable BOOL false
 
 [attr vignetting]
@@ -332,6 +368,25 @@ soft.inspectable BOOL false
 [attr enable]
 linkable BOOL false
 
+[attr layer_selection]
+linkable BOOL false
+
+[attr mode]
+linkable BOOL false
+
+[attr preserve_saturation]
+linkable BOOL false
+
+[attr gamma]
+min FLOAT 0
+softmax FLOAT 5
+linkable BOOL false
+
+[attr mix]
+min FLOAT 0
+max FLOAT 1
+linkable BOOL false
+
 [attr filmic_toe_strength]
 soft.label STRING "Toe Strength"
 min FLOAT 0
@@ -402,6 +457,15 @@ soft.order STRING "enable layer_selection mode illuminant temperature custom"
 soft.inspectable BOOL false
 
 [attr enable]
+linkable BOOL false
+
+[attr layer_selection]
+linkable BOOL false
+
+[attr mode]
+linkable BOOL false
+
+[attr illuminant]
 linkable BOOL false
 
 [attr temperature]
