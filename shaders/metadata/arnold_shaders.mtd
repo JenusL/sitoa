@@ -4408,7 +4408,7 @@ softmax FLOAT 5
 [node triplanar]
 soft.category STRING "Texture"
 soft.order STRING "BeginGroup Main input input_per_axis input_Y input_Z EndGroup "
-"BeginGroup Transform scale rotate offset coord_space pref_name blend flip_on_opposite_direction EndGroup "
+"BeginGroup Transform scale rotate offset coord_space pref_name nref_name blend flip_on_opposite_direction EndGroup "
 "BeginGroup Cell cell cell_rotate cell_blend EndGroup"
 
 [attr input]
@@ -4438,6 +4438,10 @@ soft.label STRING "Coordinate Space"
 
 [attr pref_name]
 desc STRING "Specify the name of the reference position user-data array. Previously, the name was hard-coded as Pref, which is still the default."
+soft.disable_when STRING "{ coord_space != Pref }"
+
+[attr nref_name]
+desc STRING "Specify the name of the reference normal user-data array."
 soft.disable_when STRING "{ coord_space != Pref }"
 
 [attr blend]
