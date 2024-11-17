@@ -908,16 +908,10 @@ void CShaderDefSet::Load(const CString &in_plugin_origin_path)
 
    AiNodeEntryIteratorDestroy(node_entry_it);
 
-   // imagers are of type AI_NODE_DRIVER so we need to check the name of the driver to see if its an imager
-   node_entry_it = AiUniverseGetNodeEntryIterator(AI_NODE_DRIVER);
+   node_entry_it = AiUniverseGetNodeEntryIterator(AI_NODE_IMAGER);
    while (!AiNodeEntryIteratorFinished(node_entry_it))
    {
       AtNodeEntry* node_entry = AiNodeEntryIteratorGetNext(node_entry_it);
-      AtString node_entry_name(AiNodeEntryGetName(node_entry));
-      CString node_name(node_entry_name.c_str());
-
-      if (!CStringUtilities().StartsWith(node_name, L"imager_"))
-         continue;
 
       CShaderDefShader shader_def(node_entry); // collect everything
       progId = shader_def.Define(); // build parameters and the UI
