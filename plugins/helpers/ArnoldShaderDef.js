@@ -155,6 +155,7 @@ function XSILoadPlugin( in_reg )
    in_reg.RegisterShader("imager_denoiser_optix", 1, 0);
    in_reg.RegisterShader("imager_exposure", 1, 0);
    in_reg.RegisterShader("imager_lens_effects", 1, 0);
+   in_reg.RegisterShader("imager_overlay", 1, 0);
    in_reg.RegisterShader("imager_tonemap", 1, 0);
    in_reg.RegisterShader("imager_white_balance", 1, 0);
    // operators
@@ -442,6 +443,8 @@ function Arnold_imager_exposure_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_imager_exposure_1_0_Define(in_ctxt) { return true; }
 function Arnold_imager_lens_effects_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_imager_lens_effects_1_0_Define(in_ctxt) { return true; }
+function Arnold_imager_overlay_1_0_DefineInfo(in_ctxt) { return true; }
+function Arnold_imager_overlay_1_0_Define(in_ctxt) { return true; }
 function Arnold_imager_tonemap_1_0_DefineInfo(in_ctxt) { return true; }
 function Arnold_imager_tonemap_1_0_Define(in_ctxt) { return true; }
 function Arnold_imager_white_balance_1_0_DefineInfo(in_ctxt) { return true; }

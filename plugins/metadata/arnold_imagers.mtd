@@ -258,6 +258,66 @@ softmax FLOAT 10
 linkable BOOL false
 
 ###########################################################################
+[node imager_overlay]
+soft.order STRING "enable layer_selection output_suffix text "
+"BeginGroup Layout valign halign margin_left margin_right margin_top margin_bottom EndGroup "
+"BeginGroup Font font font_size adjust_font_size font_color EndGroup "
+"BeginGroup Background background_opacity background_color EndGroup "
+
+[attr input]
+soft.inspectable BOOL false
+
+[attr enable]
+linkable BOOL false
+
+[attr layer_selection]
+linkable BOOL false
+
+[attr output_suffix]
+linkable BOOL false
+
+[attr text]
+linkable BOOL false
+
+[attr valign]
+soft.label STRING "Vertical Alignment"
+linkable BOOL false
+
+[attr halign]
+soft.label STRING "Horizontal Alignment"
+linkable BOOL false
+
+[attr margin_left]
+linkable BOOL false
+
+[attr margin_right]
+linkable BOOL false
+
+[attr margin_top]
+linkable BOOL false
+
+[attr margin_bottom]
+linkable BOOL false
+
+[attr font]
+linkable BOOL false
+
+[attr font_size]
+linkable BOOL false
+
+[attr adjust_font_size]
+linkable BOOL false
+
+[attr font_color]
+linkable BOOL false
+
+[attr background_opacity]
+linkable BOOL false
+
+[attr background_color]
+linkable BOOL false
+
+###########################################################################
 [node imager_tonemap]
 soft.order STRING "enable layer_selection "
 "BeginGroup Main mode preserve_saturation gamma mix EndGroup "
