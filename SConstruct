@@ -378,7 +378,6 @@ if system.os() != 'windows':
 license_path = os.path.join(bin_path, 'license')
 pit_path = os.path.join(license_path, 'pit')
 
-DLLS = '*.dll'   
 plugin_binary_path = ""
 
 # This explicit handling doesn't support other compilers like ICC
@@ -392,23 +391,25 @@ else:
       plugin_binary_path = os.path.join('build', 'linux_x86_64', 'gcc_opt', "si_%s" % XSISDK_VERSION)
    else:
       plugin_binary_path = os.path.join('build', 'linux_x86_64', 'gcc_debug', "si_%s" % XSISDK_VERSION)   
-   DLLS = '*.so'
+
+lib = get_library_extension()
+exe = get_executable_extension()
 
 PACKAGE_FILES = [
-[os.path.join(plugin_binary_path, 'sitoa', DLLS),                          os.path.join(addon_path, bin_path)],
-[os.path.join(plugin_binary_path, 'shaders', DLLS),                        os.path.join(addon_path, bin_path)],
+[os.path.join(plugin_binary_path, 'sitoa', '*{}'.format(lib)),             os.path.join(addon_path, bin_path)],
+[os.path.join(plugin_binary_path, 'shaders', '*{}'.format(lib)),           os.path.join(addon_path, bin_path)],
 [os.path.join(plugin_binary_path, 'shaders', 'osl', '*.oso'),              os.path.join(addon_path, bin_path)],
-[os.path.join(ARNOLD_BINARIES, 'ADPClientService%s' % get_executable_extension()), os.path.join(addon_path, bin_path)],
-[os.path.join(ARNOLD_BINARIES, 'AdpSDKUtil%s' % get_executable_extension()), os.path.join(addon_path, bin_path)],
-[os.path.join(ARNOLD_BINARIES, 'ArnoldLicenseManager%s' % get_executable_extension()), os.path.join(addon_path, bin_path)],
-[os.path.join(ARNOLD_BINARIES, 'kick%s' % get_executable_extension()),     os.path.join(addon_path, bin_path)],
-[os.path.join(ARNOLD_BINARIES, 'maketx%s' % get_executable_extension()),   os.path.join(addon_path, bin_path)],
-[os.path.join(ARNOLD_BINARIES, 'noice%s' % get_executable_extension()),    os.path.join(addon_path, bin_path)],
-[os.path.join(ARNOLD_BINARIES, 'oiiotool%s' % get_executable_extension()), os.path.join(addon_path, bin_path)],
-[os.path.join(ARNOLD_BINARIES, 'oslc%s' % get_executable_extension()),     os.path.join(addon_path, bin_path)],
-[os.path.join(ARNOLD_BINARIES, 'oslinfo%s' % get_executable_extension()),  os.path.join(addon_path, bin_path)],
-[os.path.join(ARNOLD_BINARIES, '*%s' % get_library_extension()),           os.path.join(addon_path, bin_path)],
-[os.path.join(ARNOLD_BINARIES, '*%s.*' % get_library_extension()),         os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, 'ADPClientService{}'.format(exe)),          os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, 'AdpSDKUtil{}'.format(exe)),                os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, 'ArnoldLicenseManager{}'.format(exe)),      os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, 'kick{}'.format(exe)),                      os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, 'maketx{}'.format(exe)),                    os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, 'noice{}'.format(exe)),                     os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, 'oiiotool{}'.format(exe)),                  os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, 'oslc{}'.format(exe)),                      os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, 'oslinfo{}'.format(exe)),                   os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, '*{}'.format(lib)),                         os.path.join(addon_path, bin_path)],
+[os.path.join(ARNOLD_BINARIES, '*{}.*'.format(lib)),                       os.path.join(addon_path, bin_path)],
 [os.path.join(ARNOLD_BINARIES, '*.pit'),                                   os.path.join(addon_path, bin_path)],
 [os.path.join(ARNOLD_BINARIES, '*.png'),                                   os.path.join(addon_path, bin_path)],
 [os.path.join(ARNOLD_BINARIES, 'senddmp'),                                 os.path.join(addon_path, bin_path, 'senddmp')],
@@ -419,8 +420,10 @@ PACKAGE_FILES = [
 [os.path.join('plugins', 'helpers', 'Pictures', '*.bmp'),                  os.path.join(addon_path, pictures_path)],
 [os.path.join('shaders', 'metadata', '*.mtd'),                             os.path.join(addon_path, bin_path)],
 [os.path.join('plugins', 'metadata', '*.mtd'),                             os.path.join(addon_path, bin_path)],
-[os.path.join(ARNOLD_HOME, 'license', 'lmuti*'),                           os.path.join(addon_path, license_path)],
-[os.path.join(ARNOLD_HOME, 'license', 'rl*'),                              os.path.join(addon_path, license_path)],
+[os.path.join(ARNOLD_HOME, 'license', 'LicensingUpdater{}'.format(exe)),   os.path.join(addon_path, license_path)],
+[os.path.join(ARNOLD_HOME, 'license', 'lmutil{}'.format(exe)),             os.path.join(addon_path, license_path)],
+[os.path.join(ARNOLD_HOME, 'license', 'rlm{}'.format(exe)),                os.path.join(addon_path, license_path)],
+[os.path.join(ARNOLD_HOME, 'license', 'rlmutil{}'.format(exe)),            os.path.join(addon_path, license_path)],
 [os.path.join(ARNOLD_HOME, 'license', 'solidangle.*'),                     os.path.join(addon_path, license_path)],
 [os.path.join(ARNOLD_HOME, 'license', 'pit', '*'),                         os.path.join(addon_path, pit_path)]
 ]
