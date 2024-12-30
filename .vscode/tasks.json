@@ -1,0 +1,46 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "SItoA - Install",
+            "type": "shell",
+            "command": "./abuild install",
+            "windows": {
+                "command": ".\\abuild.bat install",
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "SItoA - Package",
+            "type": "shell",
+            "command": "./abuild pack",
+            "windows": {
+                "command": ".\\abuild.bat pack",
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "none",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "SItoA - Run Testsuite",
+            "type": "shell",
+            "command": "./abuild testsuite",
+            "windows": {
+                "command": ".\\abuild.bat testsuite",
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        },
+    ]
+}
