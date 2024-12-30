@@ -4076,13 +4076,13 @@ soft.label STRING "Internal IOR"
 ##############################################################################
 [node toon]
 soft.category STRING "Surface"
-soft.order STRING "BeginGroup Edge enable edge_color edge_tonemap edge_opacity edge_width_scale "
+soft.order STRING "BeginGroup Edge enable edge_color edge_tonemap edge_tonemap_hue_saturation edge_opacity edge_width_scale "
     "BeginGroup Edge_Detection id_difference shader_difference mask_color uv_threshold angle_threshold normal_type EndGroup "
     "BeginGroup Advanced_Edge_Control priority ignore_throughput user_id EndGroup "
 "EndGroup "
-"BeginGroup Silhouette enable_silhouette silhouette_color silhouette_tonemap silhouette_opacity silhouette_width_scale EndGroup "
-"BeginGroup Base base base_color base_tonemap EndGroup "
-"BeginGroup Specular specular specular_color specular_roughness specular_anisotropy specular_rotation specular_tonemap EndGroup "
+"BeginGroup Silhouette enable_silhouette silhouette_color silhouette_tonemap silhouette_tonemap_hue_saturation silhouette_opacity silhouette_width_scale EndGroup "
+"BeginGroup Base base base_color base_tonemap base_tonemap_hue_saturation EndGroup "
+"BeginGroup Specular specular specular_color specular_roughness specular_anisotropy specular_rotation specular_tonemap specular_tonemap_hue_saturation EndGroup "
 "BeginGroup Stylized_Highlight lights highlight_color highlight_size EndGroup "
 "BeginGroup Rim_Lighting rim_light rim_light_color rim_light_width rim_light_tint EndGroup "
 "BeginGroup Transmission transmission transmission_color transmission_roughness transmission_anisotropy transmission_rotation IOR EndGroup "
@@ -4100,12 +4100,19 @@ soft.label STRING "Edge (requires contour filter)"
 
 [attr edge_color]
 desc STRING "The color of the toon edge. The line style can be controlled with a texture here."
+soft.label STRING "Color"
 
 [attr edge_tonemap]
 desc STRING "Connect a ramp node here to change the Edge Color based on the shading result of the Base."
+soft.label STRING "Tonemap"
+
+[attr edge_tonemap_hue_saturation]
+desc STRING "A mapping function that converts direct lights' hue (plotted on the U-coordinates) and saturation (plotted on the V-coordinates) to a tonemapped equivalent on the edge effect."
+soft.label STRING "Tonemap (Hue/Saturation)"
 
 [attr edge_opacity]
 desc STRING "Controls the transparency of the Edge."
+soft.label STRING "Opacity"
 min FLOAT 0
 max FLOAT 1
 
@@ -4166,6 +4173,10 @@ soft.label STRING "Color"
 desc STRING "Connect a ramp node here to change the Silhouette Color based on the shading result of the Base."
 soft.label STRING "Tonemap"
 
+[attr silhouette_tonemap_hue_saturation]
+desc STRING "A mapping function that converts direct lights' hue (plotted on the U-coordinates) and saturation (plotted on the V-coordinates) to a tonemapped equivalent on the edge effect."
+soft.label STRING "Tonemap (Hue/Saturation)"
+
 [attr silhouette_opacity]
 desc STRING "Controls the transparency of the Silhouette."
 soft.label STRING "Opacity"
@@ -4192,6 +4203,10 @@ soft.viewport_guid STRING "{3515CC72-082C-11D0-91DE-00A024C78EE3}"
 [attr base_tonemap]
 desc STRING "Connect a ramp node here to create a cell look (regarded as a tone map)."
 soft.label STRING "Tonemap"
+
+[attr base_tonemap_hue_saturation]
+desc STRING "A mapping function that converts direct lights' hue (plotted on the U-coordinates) and saturation (plotted on the V-coordinates) to a tonemapped equivalent on the edge effect."
+soft.label STRING "Tonemap (Hue/Saturation)"
 
 # Specular
 
@@ -4227,6 +4242,10 @@ softmax FLOAT 1
 [attr specular_tonemap]
 desc STRING "Connect a ramp node here to create a cell look (regarded as a tone map)."
 soft.label STRING "Tonemap"
+
+[attr specular_tonemap_hue_saturation]
+desc STRING "A mapping function that converts direct lights' hue (plotted on the U-coordinates) and saturation (plotted on the V-coordinates) to a tonemapped equivalent on the edge effect."
+soft.label STRING "Tonemap (Hue/Saturation)"
 
 # Stylized highlight
 
