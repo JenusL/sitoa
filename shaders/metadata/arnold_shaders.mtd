@@ -4409,7 +4409,7 @@ softmax FLOAT 5
 [node triplanar]
 soft.category STRING "Texture"
 soft.order STRING "BeginGroup Main input input_per_axis input_Y input_Z EndGroup "
-"BeginGroup Transform scale rotate offset coord_space pref_name nref_name blend flip_on_opposite_direction EndGroup "
+"BeginGroup Transform scale rotate offset coord_space pref_name nref_name blend normal_type flip_on_opposite_direction EndGroup "
 "BeginGroup Cell cell cell_rotate cell_blend EndGroup"
 
 [attr input]
@@ -4449,6 +4449,9 @@ soft.disable_when STRING "{ coord_space != Pref }"
 desc STRING "Blending factor at the seems."
 min FLOAT 0
 max FLOAT 1
+
+[attr normal_type]
+desc STRING "Type of normal used to pick dominant axis. Note: smooth_before_displacing requires autobump"
 
 [attr flip_on_opposite_direction]
 desc STRING "Used to control the behavior of the shader on faces facing the corresponding negative axis, if set to true a vertical symmetry transformation is applied to the texture on faces facing the opposite direction."
