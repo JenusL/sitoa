@@ -78,12 +78,12 @@ function SetSceneForArnold()
             SetValue(shader + ".angle", 0.53, "");
          }
       
-         // Modify Scene_Material to use standard_surface
+         // Modify Scene_Material to use openpbr_surface
          var sceneMaterial = Dictionary.GetObject("Sources.Materials.DefaultLib.Scene_Material");
          var currentShader = sceneMaterial.Surface.Source.Parent;
          if (currentShader.Name == "Phong")
          {
-            var shader = CreateShaderFromProgID("Arnold.standard_surface.1.0", sceneMaterial, null);
+            var shader = CreateShaderFromProgID("Arnold.openpbr_surface.1.0", sceneMaterial, null);
             var closure = CreateShaderFromProgID("Arnold.closure.1.0", sceneMaterial, null);
             SIConnectShaderToCnxPoint(shader, closure.closure, false);
             SIConnectShaderToCnxPoint(closure, sceneMaterial.Surface, false);
