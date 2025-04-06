@@ -2252,7 +2252,7 @@ desc STRING "The input vector to be  normalized."
 soft.category STRING "Surface"
 soft.order STRING "BeginGroup Base base_weight base_color base_roughness base_metalness EndGroup "
 "BeginGroup Specular specular_weight specular_color specular_roughness specular_ior specular_ior_level specular_anisotropy specular_rotation EndGroup "
-"BeginGroup Transmission transmission_weight transmission_color transmission_depth transmission_scatter transmission_scatter_anisotropy transmission_dispersion_abbe_number transmission_dispersion_scale transmission_transmit_aovs dielectric_priority EndGroup "
+"BeginGroup Transmission transmission_weight transmission_color transmission_depth transmission_scatter transmission_scatter_anisotropy transmission_dispersion_abbe_number transmission_dispersion_scale transmission_shadow_density transmission_transmit_aovs dielectric_priority EndGroup "
 "BeginGroup Subsurface subsurface_weight subsurface_color subsurface_radius subsurface_radius_scale subsurface_anisotropy EndGroup "
 "BeginGroup Coat coat_weight coat_color coat_roughness coat_ior coat_ior_level coat_anisotropy coat_rotation EndGroup "
 "BeginGroup Fuzz fuzz_weight fuzz_color fuzz_roughness EndGroup "
@@ -2372,22 +2372,19 @@ max FLOAT 1
 
 [attr transmission_dispersion_abbe_number]
 desc STRING "Abbe number of the material, which describes how much the index of refraction varies across wavelengths."
-soft.label STRING "Dispersion Abbe number"
+soft.label STRING "Dispersion Abbe"
 min     FLOAT 0
 softmin FLOAT 0
 softmax FLOAT 100
 
 [attr transmission_dispersion_scale]
 desc STRING "Linearly scales the amount of dispersion."
-soft.label STRING "Dispersion scale"
+soft.label STRING "Dispersion Scale"
 min FLOAT 0
 max FLOAT 1
 
-[attr transmission_extra_roughness]
-desc STRING "Additional refraction blurriness."
-soft.label STRING "Extra Roughness"
-min FLOAT -1
-max FLOAT 1
+[attr transmission_shadow_density]
+soft.label STRING "Shadow Density"
 
 [attr transmission_transmit_aovs]
 soft.label STRING "Transmit AOVs"
@@ -2417,7 +2414,7 @@ softmax FLOAT 1
 
 [attr subsurface_radius_scale]
 desc STRING "Scales the SSS component."
-soft.label STRING "Radius scale"
+soft.label STRING "Radius Scale"
 
 [attr subsurface_anisotropy]
 soft.label STRING "Anisotropy"
@@ -3367,7 +3364,7 @@ soft.label STRING "ID 8"
 soft.category STRING "Surface"
 soft.order STRING "BeginGroup Base base base_color diffuse_roughness metalness EndGroup "
 "BeginGroup Specular specular specular_color specular_roughness specular_IOR specular_anisotropy specular_rotation EndGroup "
-"BeginGroup Transmission transmission transmission_color transmission_depth transmission_scatter transmission_scatter_anisotropy transmission_dispersion transmission_extra_roughness transmit_aovs dielectric_priority EndGroup "
+"BeginGroup Transmission transmission transmission_color transmission_depth transmission_scatter transmission_scatter_anisotropy transmission_dispersion transmission_extra_roughness transmission_shadow_density transmit_aovs dielectric_priority EndGroup "
 "BeginGroup Subsurface subsurface subsurface_color subsurface_radius subsurface_scale subsurface_type subsurface_anisotropy EndGroup "
 "BeginGroup Coat coat coat_color coat_roughness coat_IOR coat_normal coat_anisotropy coat_rotation coat_affect_color coat_affect_roughness EndGroup "
 "BeginGroup Sheen sheen sheen_color sheen_roughness EndGroup "
@@ -3491,6 +3488,9 @@ desc STRING "Additional refraction blurriness."
 soft.label STRING "Extra Roughness"
 min FLOAT -1
 max FLOAT 1
+
+[attr transmission_shadow_density]
+soft.label STRING "Shadow Density"
 
 [attr transmit_aovs]
 soft.label STRING "Transmit AOVs"
